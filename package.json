@@ -1,0 +1,27 @@
+{
+  "name": "back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "html-pdf": "^3.0.1",
+    "jsonwebtoken": "^9.0.1",
+    "mysql": "^2.18.1",
+    "nodemailer": "^6.9.3",
+    "pdfkit": "^0.13.0",
+    "pdfmake": "^0.2.7",
+    "puppeteer": "^20.7.3"
+  }
+}
