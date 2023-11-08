@@ -1,52 +1,45 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { pool, connectDB } = require("../Config/db");
+const { pool } = require("../Config/db");
 
 exports.createUser = async (req, res) => {
     try {
-        const { nombre, correo, password, idmunicipio, direccion, telefonos, rol, urlfoto } = req.body;
+        const { nombre, apellido, email, contraseña, rol } = req.body;
 
-        if (!nombre || !correo || !password || !idmunicipio || !rol) {
+        // Validación de datos de entrada
+        if (!nombre || !apellido || !email || !contraseña || !rol) {
             return res.status(400).json({ message: "Faltan campos obligatorios" });
         }
 
-        if (!req.token) {
-            return res.status(403).json({ error: "Debes autenticarte antes de realizar esta petición" });
+        if (contraseña.length < 8) {
+            return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres" });
         }
 
-        bcrypt.hash(password, 12, async (error, passwordHash) => {
-            if (error) {
-                console.error('Ocurrió un error al encriptar la clave del usuario', error);
-                return res.status(500).json({ message: "Error interno del servidor" });
-            }
+        // Hashear la contraseña
+        const passwordHash = await bcrypt.hash(contraseña, 12);
 
-            jwt.verify(req.token, "cacaoapp", async (authError, authData) => {
-                if (authError) {
-                    return res.status(403).json({ error: "Token inválido" });
-                } else {
-                    const [existingUser] = await pool.promise().query("SELECT * FROM usuarios WHERE correo = ?", [correo]);
+        // Verificar si el correo ya está registrado
+        const [existingUser] = await pool.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
 
-                    if (existingUser.length > 0) {
-                        return res.status(400).json({ message: "El correo ya se encuentra registrado" });
-                    }
+        if (existingUser.length > 0) {
+            return res.status(400).json({ message: "El correo ya se encuentra registrado" });
+        }
 
-                    const [insertUser] = await pool.promise().query(
-                        "INSERT INTO usuarios (nombre, correo, password, idmunicipio, direccion, telefonos, urlfoto, rol, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        [nombre, correo, passwordHash, idmunicipio, direccion, telefonos, urlfoto, rol, 'A']
-                    );
+        // Inserción del nuevo usuario
+        const [insertUser] = await pool.promise().query(
+            "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, ?)",
+            [nombre, apellido, email, passwordHash, rol]
+        );
 
-                    if (insertUser.affectedRows) {
-                        // Realizar acciones adicionales, como asignar permisos según el rol
-                        // y devolver una respuesta exitosa
-                        return res.status(200).json({ message: "Se ha creado correctamente el usuario" });
-                    } else {
-                        return res.status(500).json({ message: "No se ha podido crear el usuario" });
-                    }
-                }
-            });
-        });
+        if (insertUser.affectedRows) {
+            // Realizar acciones adicionales, como asignar permisos según el rol
+
+            // Devolver una respuesta exitosa
+            return res.status(200).json({ message: "Se ha creado correctamente el usuario" });
+        } else {
+            return res.status(500).json({ message: "No se ha podido crear el usuario" });
+        }
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: "Error interno del servidor", error });
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 };

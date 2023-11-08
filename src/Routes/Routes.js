@@ -1,16 +1,14 @@
 const express = require("express");
+const router = express.Router();
 const verifyToken = require("../Middleware/verifyToken");
 const UsuriosControllers = require("../Controllers/UsuariosController.js");
 
-const jwt = require("jsonwebtoken");
-const path = require('path');
-const {verify} = require("jsonwebtoken");
-const router = express.Router();
-
 router.get("/", (req, res) => {
     res.json({
-        mensaje: "Bienvenido a la api de cacaoApp"
+        mensaje: "Bienvenido a la api de Nails art"
     });
 });
 
 router.post("/createusuario", verifyToken, UsuriosControllers.createUser);
+
+module.exports = router;

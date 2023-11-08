@@ -1,6 +1,6 @@
-const app = require('./index');
+const app = require("./index");
 
-const puerto = 4000;
-app.listen(puerto, function () {
-    console.log('La aplicacion de nails art se encuentra en el puerto', puerto);
-})
+const port = 4000;
+app.listen(port, function () {
+    console.log("La aplicación se encuentra en ejecución en el puerto:", port);
+});
