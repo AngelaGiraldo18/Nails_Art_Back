@@ -18,7 +18,13 @@ app.use(cors({
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/api", routes);
+app.use('/uploads', express.static('uploads'));
+
+// Configurar cabeceras de CSP
+app.use((req, res, next) => {
+    res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self'; object-src 'self' uploads/;");
+    next();
+});
 
 // Después de tus rutas
 app.use((err, req, res, next) => {
@@ -27,5 +33,15 @@ app.use((err, req, res, next) => {
 });
 
 connectDB();
+// Asegúrate de que la carpeta de carga exista
+const fs = require('fs');
+const uploadDir = './uploads';
 
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+    console.log('Carpeta de carga creada:', uploadDir);
+} else {
+    console.log('La carpeta de carga ya existe:', uploadDir);
+}
 module.exports = app;
+app.use("/api", routes);

@@ -14,14 +14,17 @@ if (!secretKey) {
 
 exports.createUser = async (req, res) => {
     try {
-        console.log('Datos del usuario a insertar:', req.body);
-
         const { nombre, apellido, email, contrasena, rol } = req.body;
+        console.log('FormData en el servidor:', req.body);
+
 
         if (!nombre || !apellido || !email || !contrasena || !rol) {
             return res.status(400).json({ message: "Faltan campos obligatorios" });
         }
         console.log('Petición recibida:', req.body);
+        if (!req.file) {
+            return res.status(400).json({ message: "Falta el archivo adjunto (hoja de vida)" });
+        }
 
         if (contrasena.length <= 8) {
             return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres" });
