@@ -16,7 +16,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
@@ -34,6 +33,7 @@ app.use((err, req, res, next) => {
 
 connectDB();
 // Asegúrate de que la carpeta de carga exista
+// Asegúrate de que la carpeta de carga exista
 const fs = require('fs');
 const uploadDir = './uploads';
 
@@ -43,5 +43,6 @@ if (!fs.existsSync(uploadDir)) {
 } else {
     console.log('La carpeta de carga ya existe:', uploadDir);
 }
+
 module.exports = app;
 app.use("/api", routes);

@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { pool } = require("../Config/db");
-
+ 
 // Cargar variables de entorno desde el archivo .env
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
@@ -17,18 +17,11 @@ exports.createUser = async (req, res) => {
         const { nombre, apellido, email, contrasena, rol } = req.body;
         console.log('FormData en el servidor:', req.body);
 
-
         if (!nombre || !apellido || !email || !contrasena || !rol) {
             return res.status(400).json({ message: "Faltan campos obligatorios" });
         }
-        console.log('Petición recibida:', req.body);
-        if (!req.file) {
-            return res.status(400).json({ message: "Falta el archivo adjunto (hoja de vida)" });
-        }
 
-        if (contrasena.length <= 8) {
-            return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres" });
-        }
+        console.log('Petición recibida:', req.body);
 
         const passwordHash = await bcrypt.hash(contrasena, 12);
 

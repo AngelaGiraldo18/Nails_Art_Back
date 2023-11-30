@@ -22,7 +22,7 @@ const transporter = nodemailer.createTransport({
     port: 587,  
     secure: false,
 });
-
+ 
 console.log(transporter);
 
 const storage = multer.diskStorage({
@@ -52,29 +52,22 @@ exports.createEmpleadoCandidato = async (req, res) => {
     try {
         const { nombre, apellido, email, telefono, aceptoPrivacidad } = req.body;
 
-        // Verificar si hay un archivo adjunto
-        if (!req.file) {
-            return res.status(400).json({ message: "Falta el archivo adjunto (hoja de vida)" });
+        if (req.file) {
+            const hojaVidaFile = req.file;
+            const host = req.get('host');
+            const fileUrl = `${req.protocol}://${host}/${hojaVidaFile.path}`;
+            console.log('Solicitud recibida con archivo adjunto:', req.body, fileUrl, req.file);
+
+        } else {
+            const [insertEmpleado] = await pool.promise().query(
+                "INSERT INTO empleadosCandidatos (nombre, apellido, email, telefono, acepto_privacidad) VALUES (?, ?, ?, ?, ?)",
+                [nombre, apellido, email, telefono, aceptoPrivacidad]
+            );
+
+            const empleadoId = insertEmpleado.insertId;
+            const token = jwt.sign({ empleadoId }, secretKey, { expiresIn: '1h' });
+            res.status(200).json({ message: "Se ha creado correctamente el empleado candidato", token });
         }
-
-        // Validar campos obligatorios
-        if (!nombre || !apellido || !email || !telefono || !aceptoPrivacidad) {
-            return res.status(400).json({ message: "Faltan campos obligatorios" });
-        }
-
-        const hojaVidaFile = req.file;
-        const host = req.get('host');
-        const fileUrl = `${req.protocol}://${host}/${hojaVidaFile.path}`;
-        console.log('Solicitud recibida:', req.body, fileUrl, req.file);
-
-        const [insertEmpleado] = await pool.promise().query(
-            "INSERT INTO empleadosCandidatos (nombre, apellido, email, telefono, hoja_vida_path, acepto_privacidad) VALUES (?, ?, ?, ?, ?, ?)",
-            [nombre, apellido, email, telefono, fileUrl, aceptoPrivacidad]
-        );
-
-        const empleadoId = insertEmpleado.insertId;
-        const token = jwt.sign({ empleadoId }, secretKey, { expiresIn: '1h' });
-        res.status(200).json({ message: "Se ha creado correctamente el empleado candidato", token });
     } catch (error) {
         console.error('Error en el controlador:', error);
         res.status(500).json({ message: "Error interno del servidor", error: error.message });

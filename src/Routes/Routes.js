@@ -24,7 +24,7 @@ router.delete("/eliminarManicurista/:idmanicurista", Manicurista.eliminarManicur
 router.post('/loginManicurista', Manicurista.loginManicurista);
 
 // Rutas para agendar una cita
-router.post("/crearTiposUñas", AgendaCitas.createTipoUñas);
+router.post("/crearCita", AgendaCitas.createCita);
 router.get("/citas/:fecha", AgendaCitas.obtenerCitasPorFecha);
 
 // Rutas para el Trabajador Candidato
