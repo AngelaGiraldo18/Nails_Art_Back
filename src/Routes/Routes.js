@@ -5,6 +5,7 @@ const Manicurista = require("../Controllers/Manicurista/ManicuristaControllers.j
 const verifyToken = require('../Middleware/verifyToken.js');
 const AgendaCitas = require('../Controllers/agendamientoCitas/AgendarcitasControllers.js');
 const empleadosController = require('../Controllers/TrabajaConNosotros/TrabajaNosotrosControllers.js');
+const favoritasController = require('../Controllers/favoritas/favoritas.js');
 
 router.get("/", (req, res) => {
     res.json({
@@ -22,6 +23,7 @@ router.get('/manicuristas', Manicurista.getManicurista);
 router.put("/updateManicurista", Manicurista.updateManicurista);
 router.delete("/eliminarManicurista/:idmanicurista", Manicurista.eliminarManicurista);
 router.post('/loginManicurista', Manicurista.loginManicurista);
+router.get('/buscar-por-nombre/:nombre', Manicurista.buscarPorNombre);
 
 // Rutas para agendar una cita
 router.post("/crearCita", AgendaCitas.createCita);
@@ -31,5 +33,8 @@ router.get("/citas/:fecha", AgendaCitas.obtenerCitasPorFecha);
 router.post('/createEmpleadoCandidato', empleadosController.upload.single('hojaVidaFile'), empleadosController.createEmpleadoCandidato);
 router.get('/getAllEmpleadosCandidatos/:email', empleadosController.getAllEmpleadosCandidatos);
 router.post('/sendEmailWithEmpleadosData', empleadosController.sendEmailWithEmpleadosData);
+
+//Rutas de favoritos
+router.get('/manicurista/favorita/:email', favoritasController.getFavoritaManicurista);
 
 module.exports = router;

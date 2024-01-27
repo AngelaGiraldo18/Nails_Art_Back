@@ -174,3 +174,25 @@ exports.loginManicurista = async (req, res) => {
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 };
+
+exports.buscarPorNombre = async (req, res) => {
+    try {
+      const nombre = req.params.nombre;
+  
+      if (!nombre) {
+        return res.status(400).json({ message: 'Falta el nombre para la búsqueda' });
+      }
+  
+      const [manicuristas] = await pool.promise().query("SELECT * FROM manicurista WHERE nombre LIKE ?", [`%${nombre}%`]);
+  
+      if (manicuristas.length === 0) {
+        return res.status(404).json({ message: "No se encontraron manicuristas con ese nombre" });
+      }
+  
+      return res.status(200).json(manicuristas);
+    } catch (error) {
+      console.error('Error en el controlador de búsqueda de manicuristas por nombre:', error);
+      return res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+    }
+  };
+  
