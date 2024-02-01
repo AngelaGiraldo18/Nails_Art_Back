@@ -27,11 +27,20 @@ exports.createManicurista = async (req, res) => {
         const hashedPassword = await bcrypt.hash(contrasenaApp, 10);
 
         const [insertUser] = await pool.promise().query(
-            "INSERT INTO manicurista (nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion]
+            "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, 'manicurista')",
+            [nombre, apellido, emailApp, hashedPassword]
         );
 
-        if (insertUser.affectedRows) {
+        
+        const usuarioId = insertUser.insertId;
+
+    
+        const [insertManicurista] = await pool.promise().query(
+            "INSERT INTO manicurista (idusuario, nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [usuarioId, nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion]
+        );
+
+        if (insertManicurista.affectedRows) {
             const usuarioId = insertUser.insertId;
             const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
             return res.status(200).json({ message: "Se ha creado correctamente la manicurista", token });

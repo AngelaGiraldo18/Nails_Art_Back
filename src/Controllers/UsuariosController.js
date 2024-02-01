@@ -50,6 +50,40 @@ exports.createUser = async (req, res) => {
     }
 };
 
+
+async function insertarAdmin() {
+    try {
+      const contraseña = '123456784'; 
+  
+      
+      const passwordHash = await bcrypt.hash(contraseña, 12);
+
+   
+      const [existingAdmin] = await pool.promise().query("SELECT * FROM usuarios WHERE rol = 'admin'");
+
+      if (existingAdmin.length === 0) {
+        const [insertUser] = await pool.promise().query(
+          "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES ('juan', 'gonza', 'admin12@gmail.com', ?, 'admin')",
+          [passwordHash]
+        );
+
+        if (insertUser.affectedRows) {
+          console.log('Usuario administrador insertado correctamente en la base de datos.');
+        } else {
+          console.log('No se pudo insertar el usuario administrador en la base de datos.');
+        }
+      } else {
+        console.log('Ya existe un administador en la base de datos. No se insertará uno nuevo.');
+      }
+    } catch (error) {
+      console.error('Error al insertar el usuario administrador:', error.message);
+    } finally {
+
+    }
+}
+
+
+insertarAdmin();
 exports.loginUser = async (req, res) => {
     try {
         const { email, contrasena } = req.body;
@@ -73,7 +107,7 @@ exports.loginUser = async (req, res) => {
         }
 
         const usuarioId = user[0].id;
-        const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign({ usuarioId,rol: user[0].rol  }, secretKey, { expiresIn: '1h' });
 
         return res.status(200).json({
             message: "Inicio de sesión exitoso",
