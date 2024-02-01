@@ -6,13 +6,13 @@ exports.getFavoritaManicurista = async (req, res) => {
     const userEmail = req.params.email;
     // Consulta SQL para obtener la manicurista favorita
     const query = `
-      SELECT m.nombre AS nombre_manicurista, m.fotoManicurista, m.descripcion
-      FROM citas c
-      JOIN manicurista m ON c.id_manicurista = m.idmanicurista
-      JOIN usuarios u ON c.id_usuario = u.id
-      WHERE u.email = ?
-        AND c.favorito = TRUE
-      ORDER BY c.fecha_del_servicio DESC;    
+    SELECT DISTINCT m.nombre AS nombre_manicurista, m.fotoManicurista, m.descripcion
+    FROM citas c
+    JOIN manicurista m ON c.id_manicurista = m.idmanicurista
+    JOIN usuarios u ON c.id_usuario = u.id
+    WHERE u.email = ?
+      AND c.favorito = TRUE
+    ORDER BY c.fecha_del_servicio DESC;     
     `;
 
     // Ejecutar la consulta
