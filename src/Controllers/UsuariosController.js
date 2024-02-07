@@ -30,11 +30,13 @@ exports.createUser = async (req, res) => {
         if (existingUser.length > 0) {
             return res.status(400).json({ message: "El correo ya se encuentra registrado" });
         }
-
+        connection.release();
         const [insertUser] = await pool.promise().query(
             "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, ?)",
             [nombre, apellido, email, passwordHash, rol]
         );
+
+        connection.release();
 
         if (insertUser.affectedRows) {
             const usuarioId = insertUser.insertId; 
@@ -50,40 +52,69 @@ exports.createUser = async (req, res) => {
     }
 };
 
-
-async function insertarAdmin() {
-    try {
-      const contraseña = '123456784'; 
-  
-      
-      const passwordHash = await bcrypt.hash(contraseña, 12);
-
-   
-      const [existingAdmin] = await pool.promise().query("SELECT * FROM usuarios WHERE rol = 'admin'");
-
-      if (existingAdmin.length === 0) {
-        const [insertUser] = await pool.promise().query(
-          "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES ('juan', 'gonza', 'admin12@gmail.com', ?, 'admin')",
-          [passwordHash]
-        );
-
-        if (insertUser.affectedRows) {
-          console.log('Usuario administrador insertado correctamente en la base de datos.');
-        } else {
-          console.log('No se pudo insertar el usuario administrador en la base de datos.');
+const insertAdmin = (callback) => {
+    pool.getConnection((err, connection) => {
+        if (err) {
+            return callback(err);
         }
-      } else {
-        console.log('Ya existe un administador en la base de datos. No se insertará uno nuevo.');
-      }
-    } catch (error) {
-      console.error('Error al insertar el usuario administrador:', error.message);
-    } finally {
 
+        const contraseña = '123456784';
+
+        bcrypt.hash(contraseña, 12, (bcryptError, passwordHash) => {
+            if (bcryptError) {
+                console.error('Error al generar el hash de la contraseña:', bcryptError);
+                releaseConnectionAndCallback(connection, bcryptError, callback);
+                return;
+            }
+
+            connection.query("SELECT * FROM usuarios WHERE rol = 'admin'", (selectError, existingAdmin) => {
+                if (selectError) {
+                    console.error('Error al realizar la consulta para verificar el administrador existente:', selectError);
+                    releaseConnectionAndCallback(connection, selectError, callback);
+                    return;
+                }
+
+                if (existingAdmin.length === 0) {
+                    connection.query(
+                        "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, 'admin')",
+                        ['juan', 'gonza', 'admin12@gmail.com', passwordHash],
+                        (insertError, insertUser) => {
+                            releaseConnectionAndCallback(connection, insertError, callback, insertUser);
+                        }
+                    );
+                } else {
+                    console.log('Ya existe un administrador en la base de datos. No se insertará uno nuevo.');
+                    releaseConnectionAndCallback(connection, null, callback);
+                }
+            });
+        });
+    });
+};
+
+const releaseConnectionAndCallback = (connection, error, callback, result) => {
+    connection.release();
+
+    if (error) {
+        console.error(error);
+        callback(error);
+    } else {
+        console.log('Operación completada exitosamente.');
+        callback(null, result);
     }
-}
+};
+
+insertAdmin((error, result) => {
+    if (error) {
+        console.error('Error al ejecutar insertAdmin:', error);
+    } else {
+        // Manejar el resultado si es necesario
+    }
+});
 
 
-insertarAdmin();
+
+
+
 exports.loginUser = async (req, res) => {
     try {
         const { email, contrasena } = req.body;
@@ -94,6 +125,7 @@ exports.loginUser = async (req, res) => {
         }
 
         const [user] = await pool.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
+        connection.release();
         console.log('Resultado de la consulta a la base de datos:', user);
 
         if (user.length === 0) {

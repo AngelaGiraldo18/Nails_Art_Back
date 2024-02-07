@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const cors = require('cors');
-const { connectDB } = require("./Config/db");
+
 const routes = require('./Routes/Routes');
 const dotenv = require('dotenv');
 
@@ -31,7 +31,7 @@ app.use((err, req, res, next) => {
     res.status(500).send('¡Algo salió mal!');
 });
 
-connectDB();
+
 // Asegúrate de que la carpeta de carga exista
 // Asegúrate de que la carpeta de carga exista
 const fs = require('fs');
