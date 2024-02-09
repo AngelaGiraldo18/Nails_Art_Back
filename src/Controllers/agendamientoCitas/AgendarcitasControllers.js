@@ -3,36 +3,35 @@ const { pool } = require("../../Config/db");
 const jwt = require('jsonwebtoken');
 
 exports.createCita = async (req, res) => {
-    try {
-      console.log('Datos de la cita:', req.body);
-  
-      const { id_usuario, id_manicurista, tipo_servicio, ubicacion_servicio, favorito, fecha_del_servicio, estado } = req.body;
-      if (!id_usuario || !id_manicurista || !tipo_servicio || !ubicacion_servicio || favorito === undefined || !fecha_del_servicio || !estado) {
-          return res.status(400).json({ message: "Faltan campos obligatorios" });
-      }
-      console.log('Valor de favorito:', favorito);
-      console.log('Datos de la cita:', req.body);
+  try {
+    console.log('Datos de la cita:', req.body);
 
-        // Calculamos la duración en función del tipo de servicio y ubicación
-        let duracion_en_horas = 0; // Aquí se calculará la duración según la lógica de tu aplicación
-        const fechaServicio = new Date(fecha_del_servicio).toISOString().slice(0, 19).replace('T', ' ');
-        console.log('Datos de la cita recibidos en el servidor:', req.body);
-        console.log('Valor de favorito recibido en el servidor:', req.body.favorito);
+    const { id_usuario, id_manicurista, tipo_servicio, ubicacion_servicio, favorito, fecha_del_servicio, estado } = req.body;
+    const fechaServicio = new Date(fecha_del_servicio);      
+    if (!id_usuario || !id_manicurista || !tipo_servicio || !ubicacion_servicio || favorito === undefined || !fecha_del_servicio || !estado) {
+      return res.status(400).json({ message: "Faltan campos obligatorios" });
+    }
+    console.log('Valor de favorito:', favorito);
+    console.log('Datos de la cita:', req.body);
 
-        
-        const [insertCita] = await pool.promise().query(
-          "INSERT INTO citas (id_usuario, id_manicurista, tipo_servicio, ubicacion_servicio, duracion_en_horas, favorito, fecha_del_servicio, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-          [id_usuario, id_manicurista, tipo_servicio, ubicacion_servicio, duracion_en_horas, favorito, fechaServicio, estado]
-        );        
+    // Calculamos la duración en función del tipo de servicio y ubicación
+    let duracion_en_horas = 0; // Aquí se calculará la duración según la lógica de tu aplicación
+    console.log('Datos de la cita recibidos en el servidor:', req.body);
+    console.log('Valor de favorito recibido en el servidor:', req.body.favorito);
 
-        if (insertCita.affectedRows) {
-          return res.status(200).json({ message: "Se ha creado correctamente la cita" });
-      } else {
-          return res.status(500).json({ message: "No se ha podido crear la cita" });
-      }
+    const [insertCita] = await pool.promise().query(
+      "INSERT INTO citas (id_usuario, id_manicurista, tipo_servicio, ubicacion_servicio, duracion_en_horas, favorito, fecha_del_servicio, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [id_usuario, id_manicurista, tipo_servicio, ubicacion_servicio, duracion_en_horas, favorito, fechaServicio, estado]
+    );
+
+    if (insertCita.affectedRows) {
+      return res.status(200).json({ message: "Se ha creado correctamente la cita" });
+    } else {
+      return res.status(500).json({ message: "No se ha podido crear la cita" });
+    }
   } catch (error) {
-      console.error('Error en el controlador de creación de cita:', error);
-      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    console.error('Error en el controlador de creación de cita:', error);
+    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
   }
 };
 

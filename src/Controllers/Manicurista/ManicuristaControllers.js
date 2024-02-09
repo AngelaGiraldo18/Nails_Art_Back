@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { pool } = require("../../Config/db");
-
 // Cargar variables de entorno desde el archivo .env
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
