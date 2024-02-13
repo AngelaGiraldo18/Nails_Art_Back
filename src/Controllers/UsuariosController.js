@@ -25,32 +25,52 @@ exports.createUser = async (req, res) => {
 
         const passwordHash = await bcrypt.hash(contrasena, 12);
 
-        const [existingUser] = await pool.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
+        // Obtener una conexión de la piscina
+        pool.getConnection((err, connection) => {
+            if (err) {
+                console.error('Error al obtener una conexión:', err);
+                return res.status(500).json({ message: "Error interno del servidor" });
+            }
 
-        if (existingUser.length > 0) {
-            return res.status(400).json({ message: "El correo ya se encuentra registrado" });
-        }
-        connection.release();
-        const [insertUser] = await pool.promise().query(
-            "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, ?)",
-            [nombre, apellido, email, passwordHash, rol]
-        );
+            connection.query("SELECT * FROM usuarios WHERE email = ?", [email], async (queryError, existingUser) => {
+                if (queryError) {
+                    console.error('Error al realizar la consulta de usuario existente:', queryError);
+                    connection.release();
+                    return res.status(500).json({ message: "Error interno del servidor" });
+                }
 
-        connection.release();
+                if (existingUser.length > 0) {
+                    connection.release();
+                    return res.status(400).json({ message: "El correo ya se encuentra registrado" });
+                }
 
-        if (insertUser.affectedRows) {
-            const usuarioId = insertUser.insertId; 
-            const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
-            return res.status(200).json({ message: "Se ha creado correctamente el usuario", token });
-        } else {
-            return res.status(500).json({ message: "No se ha podido crear el usuario" });
-        }
+                connection.query(
+                    "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, ?)",
+                    [nombre, apellido, email, passwordHash, rol],
+                    (insertError, insertUser) => {
+                        connection.release();
+                        if (insertError) {
+                            console.error('Error al insertar usuario:', insertError);
+                            return res.status(500).json({ message: "Error interno del servidor" });
+                        }
+
+                        if (insertUser.affectedRows) {
+                            const usuarioId = insertUser.insertId;
+                            const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
+                            return res.status(200).json({ message: "Se ha creado correctamente el usuario", token });
+                        } else {
+                            return res.status(500).json({ message: "No se ha podido crear el usuario" });
+                        }
+                    }
+                );
+            });
+        });
     } catch (error) {
         console.error('Error en el controlador:', error);
-        console.error(error);
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 };
+
 
 const insertAdmin = (callback) => {
     pool.getConnection((err, connection) => {
@@ -124,37 +144,52 @@ exports.loginUser = async (req, res) => {
             return res.status(400).json({ message: "Faltan campos obligatorios" });
         }
 
-        const [user] = await pool.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
-        connection.release();
-        console.log('Resultado de la consulta a la base de datos:', user);
-
-        if (user.length === 0) {
-            return res.status(401).json({ message: "Correo o contraseña incorrectos" });
-        }
-
-        const passwordMatch = await bcrypt.compare(contrasena, user[0].contraseña);
-
-        if (!passwordMatch) {
-            return res.status(401).json({ message: "Correo o contraseña incorrectos" });
-        }
-
-        const usuarioId = user[0].id;
-        const token = jwt.sign({ usuarioId,rol: user[0].rol  }, secretKey, { expiresIn: '1h' });
-
-        return res.status(200).json({
-            message: "Inicio de sesión exitoso",
-            token,
-            usuario: {
-                id: user[0].id,
-                nombre: user[0].nombre,
-                apellido: user[0].apellido,
-                email: user[0].email,
-                rol: user[0].rol
+        // Obtener una conexión de la piscina
+        pool.getConnection((err, connection) => {
+            if (err) {
+                console.error('Error al obtener una conexión:', err);
+                return res.status(500).json({ message: "Error interno del servidor" });
             }
+
+            connection.query("SELECT * FROM usuarios WHERE email = ?", [email], async (queryError, user) => {
+                if (queryError) {
+                    console.error('Error al realizar la consulta a la base de datos:', queryError);
+                    connection.release();
+                    return res.status(500).json({ message: "Error interno del servidor" });
+                }
+
+                if (user.length === 0) {
+                    connection.release();
+                    return res.status(401).json({ message: "Correo o contraseña incorrectos" });
+                }
+
+                const passwordMatch = await bcrypt.compare(contrasena, user[0].contraseña);
+
+                if (!passwordMatch) {
+                    connection.release();
+                    return res.status(401).json({ message: "Correo o contraseña incorrectos" });
+                }
+
+                const usuarioId = user[0].id;
+                const token = jwt.sign({ usuarioId, rol: user[0].rol }, secretKey, { expiresIn: '1h' });
+
+                connection.release(); // Liberar la conexión después de usarla
+
+                return res.status(200).json({
+                    message: "Inicio de sesión exitoso",
+                    token,
+                    usuario: {
+                        id: user[0].id,
+                        nombre: user[0].nombre,
+                        apellido: user[0].apellido,
+                        email: user[0].email,
+                        rol: user[0].rol
+                    }
+                });
+            });
         });
     } catch (error) {
         console.error('Error en el controlador de inicio de sesión:', error);
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 };
-

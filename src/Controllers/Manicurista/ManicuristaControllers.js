@@ -36,7 +36,7 @@ exports.createManicurista = async (req, res) => {
 
     
         const [insertManicurista] = await pool.promise().query(
-            "INSERT INTO manicurista (idusuario, nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO manicurista (id_usuario, nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [usuarioId, nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion]
         );
 
