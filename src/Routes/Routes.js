@@ -6,6 +6,7 @@ const verifyToken = require('../Middleware/verifyToken.js');
 const AgendaCitas = require('../Controllers/agendamientoCitas/AgendarcitasControllers.js');
 const empleadosController = require('../Controllers/TrabajaConNosotros/TrabajaNosotrosControllers.js');
 const favoritasController = require('../Controllers/favoritas/favoritas.js');
+const EstadoDeCitaController = require('../Controllers/estadoCitaModal/estadoCitaModal.js')
 
 router.get("/", (req, res) => {
     res.json({
@@ -36,5 +37,10 @@ router.post('/sendEmailWithEmpleadosData', empleadosController.sendEmailWithEmpl
 
 //Rutas de favoritos
 router.get('/manicurista/favorita/:email', favoritasController.getFavoritaManicurista);
+
+
+//Rutas de Cambio de estado
+router.put('/cambioDeEstado', EstadoDeCitaController.cambioEstado);
+router.get('/citas/:id_cita', EstadoDeCitaController.obtenerCita);
 
 module.exports = router;
