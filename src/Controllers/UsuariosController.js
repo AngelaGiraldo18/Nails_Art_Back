@@ -2,14 +2,14 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { pool } = require("../Config/db");
  
-// Cargar variables de entorno desde el archivo .env
+
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
 
-// Uso de Variables de Entorno
+
 if (!secretKey) {
     console.error('La clave secreta no está configurada correctamente en el archivo .env.');
-    process.exit(1); // Termina la aplicación con un código de error
+    process.exit(1); 
 }
 
 exports.createUser = async (req, res) => {
@@ -25,7 +25,7 @@ exports.createUser = async (req, res) => {
 
         const passwordHash = await bcrypt.hash(contrasena, 12);
 
-        // Obtener una conexión de la piscina
+      
         pool.getConnection((err, connection) => {
             if (err) {
                 console.error('Error al obtener una conexión:', err);
@@ -87,17 +87,22 @@ const insertAdmin = (callback) => {
                 return;
             }
 
-            connection.query("SELECT * FROM usuarios WHERE rol = 'admin'", (selectError, existingAdmin) => {
+        
+            
+            connection.query("SELECT * FROM usuarios WHERE email = 'nailsartadmin@gmail.com'", (selectError, existingAdmin) => {
                 if (selectError) {
                     console.error('Error al realizar la consulta para verificar el administrador existente:', selectError);
                     releaseConnectionAndCallback(connection, selectError, callback);
                     return;
                 }
 
+           
+
+
                 if (existingAdmin.length === 0) {
                     connection.query(
                         "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, 'admin')",
-                        ['juan', 'gonza', 'admin12@gmail.com', passwordHash],
+                        ['juan', 'cardona', 'nailsartadmin@gmail.com', passwordHash],
                         (insertError, insertUser) => {
                             releaseConnectionAndCallback(connection, insertError, callback, insertUser);
                         }
@@ -127,7 +132,7 @@ insertAdmin((error, result) => {
     if (error) {
         console.error('Error al ejecutar insertAdmin:', error);
     } else {
-        // Manejar el resultado si es necesario
+        
     }
 });
 
@@ -144,7 +149,7 @@ exports.loginUser = async (req, res) => {
             return res.status(400).json({ message: "Faltan campos obligatorios" });
         }
 
-        // Obtener una conexión de la piscina
+      
         pool.getConnection((err, connection) => {
             if (err) {
                 console.error('Error al obtener una conexión:', err);
@@ -173,7 +178,7 @@ exports.loginUser = async (req, res) => {
                 const usuarioId = user[0].id;
                 const token = jwt.sign({ usuarioId, rol: user[0].rol }, secretKey, { expiresIn: '1h' });
 
-                connection.release(); // Liberar la conexión después de usarla
+                connection.release(); 
 
                 return res.status(200).json({
                     message: "Inicio de sesión exitoso",
