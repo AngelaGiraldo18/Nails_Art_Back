@@ -63,7 +63,7 @@ async function insertarAdmin() {
 
       if (existingAdmin.length === 0) {
         const [insertUser] = await pool.promise().query(
-          "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES ('juan', 'gonza', 'admin12@gmail.com', ?, 'admin')",
+          "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES ('Nails', 'Art', 'admin12@gmail.com', ?, 'admin')",
           [passwordHash]
         );
 

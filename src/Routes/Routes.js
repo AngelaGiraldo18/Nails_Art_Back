@@ -47,6 +47,6 @@ router.get('/citasUsuario', EstadoDeCitaController.obtenerCitasUsuario);
 //Rutas de configuracion 
 router.get('/Configuracion', ConfiguracionController.getServicios);
 router.post('/CrearServicio', ConfiguracionController.insertarServicio);
-router.put('/ActualizarPrecio',ConfiguracionController.actualizarPrecioServicio)
-
+router.put('/ActualizarPrecio/:id_servicio', ConfiguracionController.actualizarPrecioServicio);
+router.delete("/eliminarServicio/:id_servicio", ConfiguracionController.eliminarServicio);
 module.exports = router;

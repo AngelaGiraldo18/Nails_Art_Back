@@ -54,3 +54,31 @@ exports.actualizarPrecioServicio = async (req, res) => {
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 };
+
+exports.eliminarServicio = async (req , res) =>{
+try {
+    const id_servicio = req.params.id_servicio;
+
+    if (!id_servicio) {
+        return res.status(400).json({message:'Falta el id de el servicio'})
+    }
+    const [ExistenciaServicio] = await pool.promise().query("SELECT * FROM servicio WHERE id_servicio = ?",[id_servicio]);
+
+    if (ExistenciaServicio.length === 0) {
+        return res.status(404).json({message: "El servicio no existe"})
+    }
+
+    const deleteQuery = "DELETE FROM servicio WHERE id_servicio = ?";
+    const [deleteResult] = await pool.promise().query(deleteQuery,[id_servicio]);
+
+    if (deleteResult.affectedRows > 0) {
+        return res.status(200).json({ message: "Servicio eliminado correctamente" });
+    }else{
+        return res.status(500).json({ message: "No se ha podido eliminar el Servicio" });
+    }
+} catch (error) {
+    console.log('Error en el controlador de eliminacion del servicio',error);
+    return res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+
+}
+}

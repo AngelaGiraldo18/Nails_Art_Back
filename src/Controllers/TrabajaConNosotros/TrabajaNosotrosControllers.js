@@ -69,7 +69,7 @@ exports.createEmpleadoCandidato = async (req, res) => {
 
         //cambiar la tabla a manicuristasCandidatos para el controlador y la petcion y la ruta<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         const [insertEmpleado] = await pool.promise().query(
-            "INSERT INTO empleadosCandidatos (nombre, apellido, email, telefono, hoja_vida_path, acepto_privacidad) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO manicuristasCandidatos (nombre, apellido, email, telefono, hoja_vida_path, acepto_privacidad) VALUES (?, ?, ?, ?, ?, ?)",
             [nombre, apellido, email, telefono, fileUrl, aceptoPrivacidad]
         );
 
@@ -88,7 +88,7 @@ exports.getAllEmpleadosCandidatos = async (req, res) => {
         console.log(req.body);
         const [empleadoCandidato] = await pool
             .promise()
-            .query("SELECT * FROM empleadosCandidatos WHERE email = ?", [email]);
+            .query("SELECT * FROM manicuristasCandidatos WHERE email = ?", [email]);
 
         if (empleadoCandidato.length > 0) {
             res.status(200).json({
@@ -118,7 +118,7 @@ exports.sendEmailWithEmpleadosData = async (req, res) => {
 
         const [empleadoCandidato] = await pool
             .promise()
-            .query("SELECT * FROM empleadosCandidatos WHERE email = ?", [email]);
+            .query("SELECT * FROM manicuristasCandidatos WHERE email = ?", [email]);
 
         if (empleadoCandidato.length > 0) {
             const senderEmail = 'artn2387@gmail.com';
