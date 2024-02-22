@@ -3,7 +3,22 @@ const jwt = require('jsonwebtoken');
 const { pool } = require("../../Config/db");
 // Cargar variables de entorno desde el archivo .env
 require('dotenv').config();
+const multer = require('multer');
 const secretKey = process.env.SECRET_KEY;
+
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'imagenManicurista/'); // Carpeta donde se guardarán las imágenes
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname); // Nombre del archivo
+    }
+});
+
+
+const upload = multer({ storage: storage }).single('imagen');
 
 exports.createManicurista = async (req, res) => {
     try {
@@ -16,6 +31,21 @@ exports.createManicurista = async (req, res) => {
         }
 
         console.log('Petición recibida:', req.body);
+
+
+
+        upload(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+                // Ocurrió un error con Multer
+                return res.status(500).json({ message: "Error al subir la imagen", error: err });
+            } else if (err) {
+                // Ocurrió otro tipo de error
+                return res.status(500).json({ message: "Error interno del servidor", error: err });
+            }
+
+
+            console.log('Imagen subida correctamente:', req.file);
+
 
         const [existingUser] = await pool.promise().query("SELECT * FROM manicurista WHERE emailApp = ?", [emailApp]);
 
@@ -31,10 +61,11 @@ exports.createManicurista = async (req, res) => {
         );
 
         const usuarioId = insertUser.insertId;
+        const imagenUrl = req.file ? req.file.path : null; 
 
         const [insertManicurista] = await pool.promise().query(
-            "INSERT INTO manicurista (nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion]
+            "INSERT INTO manicurista (nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion,fotoManicurista) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?)",
+            [nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion, imagenUrl]
         );
         
 
@@ -44,7 +75,8 @@ exports.createManicurista = async (req, res) => {
         } else {
             return res.status(500).json({ message: "No se ha podido crear la manicurista" });
         }
-    } catch (error) {
+    })
+} catch (error) {
         console.error('Error en el controlador:', error);
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }

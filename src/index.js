@@ -43,5 +43,16 @@ if (!fs.existsSync(uploadDir)) {
     console.log('La carpeta de carga ya existe:', uploadDir);
 }
 
+
+const uploadimg = './imagenManicurista';
+
+if (!fs.existsSync(uploadimg)) {
+    fs.mkdirSync(uploadimg);
+    console.log('Carpeta de carga creada:', uploadimg);
+} else {
+    console.log('La carpeta de carga ya existe:', uploadimg);
+}
+
+
 module.exports = app;
 app.use("/api", routes);
