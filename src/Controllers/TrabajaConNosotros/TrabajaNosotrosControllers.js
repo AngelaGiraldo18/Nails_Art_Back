@@ -68,9 +68,10 @@ exports.createEmpleadoCandidato = async (req, res) => {
         console.log('Solicitud recibida:', req.body, fileUrl, req.file);
 
         //cambiar la tabla a manicuristasCandidatos para el controlador y la petcion y la ruta<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        const aceptoPrivacidadNum = aceptoPrivacidad ? 1 : 0;
         const [insertEmpleado] = await pool.promise().query(
             "INSERT INTO manicuristasCandidatos (nombre, apellido, email, telefono, hoja_vida_path, acepto_privacidad) VALUES (?, ?, ?, ?, ?, ?)",
-            [nombre, apellido, email, telefono, fileUrl, aceptoPrivacidad]
+            [nombre, apellido, email, telefono, fileUrl, aceptoPrivacidadNum]
         );
 
         const empleadoId = insertEmpleado.insertId;

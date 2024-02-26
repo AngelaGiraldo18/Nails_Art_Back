@@ -1,7 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const app = express();
+const app = express()
+.use(bodyParser.json())
 const cors = require('cors');
+
+const {API_KEY_GEMINI, START_CHAT, GENERATION_CONFIG} = require('./Config/config')
+
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(API_KEY_GEMINI);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 const routes = require('./Routes/Routes');
 const dotenv = require('dotenv');
@@ -42,6 +49,23 @@ if (!fs.existsSync(uploadDir)) {
 } else {
     console.log('La carpeta de carga ya existe:', uploadDir);
 }
+
+app.post('/chat', async (req, res) => {
+    let history = req.body.history;
+    let question = req.body.question;
+    let historyChat = START_CHAT.concat(history)
+    const chat = model.startChat({
+      history: historyChat,
+      generationConfig: GENERATION_CONFIG
+    });
+    const sendQuestion = await chat.sendMessage(question);
+    const response = await sendQuestion.response;
+    const text = response.text();
+    history.push({role: "user", parts: question})
+    history.push({role: "model", parts: text})
+    return res.status(200).json({history: history});
+  })
+
 
 module.exports = app;
 app.use("/api", routes);
