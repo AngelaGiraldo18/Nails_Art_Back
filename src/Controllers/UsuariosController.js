@@ -106,14 +106,14 @@ exports.loginUser = async (req, res) => {
             return res.status(401).json({ message: "Correo o contraseña incorrectos" });
         }
 
-        const usuarioId = user[0].id;
+        const usuarioId = user[0].id_usuario;
         const token = jwt.sign({ usuarioId,rol: user[0].rol  }, secretKey, { expiresIn: '1h' });
 
         return res.status(200).json({
             message: "Inicio de sesión exitoso",
             token,
             usuario: {
-                id: user[0].id,
+                id: user[0].id_usuario,
                 nombre: user[0].nombre,
                 apellido: user[0].apellido,
                 email: user[0].email,
