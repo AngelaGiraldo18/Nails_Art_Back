@@ -28,7 +28,7 @@ router.get('/buscar-por-nombre/:nombre', Manicurista.buscarPorNombre);
 
 // Rutas para agendar una cita
 router.post("/crearCita", AgendaCitas.createCita);
-router.get("/citas/:fecha", AgendaCitas.obtenerCitasPorFecha);
+router.get("/citas/:fecha/:id_usuario/:rol", AgendaCitas.obtenerCitasPorFecha);
 
 // Rutas para el Trabajador Candidato
 router.post('/createEmpleadoCandidato', empleadosController.upload.single('hojaVidaFile'), empleadosController.createEmpleadoCandidato);

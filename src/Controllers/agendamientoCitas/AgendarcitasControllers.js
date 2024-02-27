@@ -52,22 +52,28 @@ exports.obtenerCitasPorFecha = async (req, res) => {
   try {
     const fecha = req.params.fecha;
     console.log('Fecha antes de la consulta:', fecha);
+    const id_usuario = req.params.id_usuario; 
+    const rol=req.params.rol
 
     const result = await pool.promise().query(`
     SELECT
-    c.id_cita,
-    u.nombre as usuario_nombre,
-    m.nombre as manicurista_nombre,
-    c.tipo_servicio,
-    c.ubicacion_servicio,
-    c.duracion_en_horas,
-    c.fecha_del_servicio,
-    c.estado
-    FROM citas c
-    JOIN usuarios u ON c.id_usuario = u.id
-    JOIN manicurista m ON c.id_manicurista = m.id_manicurista
-    WHERE DATE(c.fecha_del_servicio) = ?;
-    `, [fecha]);
+      c.id_cita,
+      u.nombre as usuario_nombre,
+      m.nombre as manicurista_nombre,
+      c.tipo_servicio,
+      c.ubicacion_servicio,
+      c.duracion_en_horas,
+      c.fecha_del_servicio,
+      c.estado
+    FROM 
+      citas c
+    JOIN 
+      usuarios u ON c.id_usuario = u.id
+    JOIN 
+      manicurista m ON c.id_manicurista = m.id_manicurista
+    WHERE 
+     ( DATE(c.fecha_del_servicio) = ? AND m.id_manicurista = ?)  OR   (DATE(c.fecha_del_servicio) = ? AND ? = 'admin');
+  `, [fecha, id_usuario, fecha, rol]);
 
     // Convertir la hora militar a hora en formato de 12 horas (AM/PM)
     result[0].forEach(cita => {
@@ -78,7 +84,7 @@ exports.obtenerCitasPorFecha = async (req, res) => {
       cita.hora_del_servicio = `${hora12h}:${minutos < 10 ? '0' : ''}${minutos} ${ampm}`; // Agregar al resultado
     });
 
-    console.log('Fecha después de la consulta:', fecha);
+    console.log('Fecha después de la consulta:', fecha,"idUsuario",id_usuario);
 
     // Devuelve las citas encontradas como respuesta
     res.status(200).json(result[0]);
