@@ -3,62 +3,98 @@ const jwt = require('jsonwebtoken');
 const { pool } = require("../../Config/db");
 // Cargar variables de entorno desde el archivo .env
 require('dotenv').config();
+const multer = require('multer');
 const secretKey = process.env.SECRET_KEY;
 
-exports.createManicurista = async (req, res) => {
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/') // Directorio donde se guardarán las imágenes
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + '-' + file.originalname) // Nombre de archivo único
+    }
+  });
+  const upload = multer({ storage: storage });
+  
+  exports.upload = multer({ storage: storage });
+  exports.createManicurista = async (req, res) => {
     try {
-        console.log('Datos de la manicurista:', req.body);
+      console.log('Datos de la manicurista:', req.body);
+      console.log('Archivo de imagen:', req.file); // Información sobre el archivo de imagen subido
+  
+      const { nombre, apellido, emailPersonal, emailApp, contrasenaApp, celular, direccion, descripcion } = req.body;
+  
+      // Verificar si se ha subido una imagen
+      if (!req.file) {
+        return res.status(400).json({ message: "Debe subir una imagen" });
+      }
+  
+      if (!nombre || !apellido || !emailPersonal || !emailApp || !contrasenaApp || !celular || !direccion) {
+        return res.status(400).json({ message: "Faltan campos obligatorios" });
+      }
+  
+      console.log('Petición recibida:', req.body);
+  
+      const [existingUser] = await pool.promise().query("SELECT * FROM manicurista WHERE emailApp = ?", [emailApp]);
+  
+      if (existingUser.length > 0) {
+        return res.status(400).json({ message: "El correo ya se encuentra registrado" });
+      }
+  
+      const hashedPassword = await bcrypt.hash(contrasenaApp, 10);
+  
+      const [insertUser] = await pool.promise().query(
+        "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, 'manicurista')",
+        [nombre, apellido, emailApp, hashedPassword]
+      );
+  
+      const usuarioId = insertUser.insertId;
+  const hojaVidaFile = req.file;
+const host = req.get('host');
+const fileUrl = `${req.protocol}://${host}/${hojaVidaFile.path}`;
+console.log('Solicitud recibida:', req.body, fileUrl, req.file);
 
-        const { nombre, apellido, emailPersonal, emailApp, contrasenaApp, celular, direccion, descripcion } = req.body;
 
-        if (!nombre || !apellido || !emailPersonal || !emailApp || !contrasenaApp || !celular || !direccion) {
-            return res.status(400).json({ message: "Faltan campos obligatorios" });
-        }
+const [insertManicurista] = await pool.promise().query(
+    "INSERT INTO manicurista (id_manicurista, nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion, fotoManicurista) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    [usuarioId, nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion, fileUrl]
+);
 
-        console.log('Petición recibida:', req.body);
-
-        const [existingUser] = await pool.promise().query("SELECT * FROM manicurista WHERE emailApp = ?", [emailApp]);
-
-        if (existingUser.length > 0) {
-            return res.status(400).json({ message: "El correo ya se encuentra registrado" });
-        }
-
-        const hashedPassword = await bcrypt.hash(contrasenaApp, 10);
-
-        const [insertUser] = await pool.promise().query(
-            "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, 'manicurista')",
-            [nombre, apellido, emailApp, hashedPassword]
-        );
-
-        const usuarioId = insertUser.insertId;
-
-        const [insertManicurista] = await pool.promise().query(
-            "INSERT INTO manicurista (id_manicurista,nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [usuarioId,nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion]
-        );
-        
-
-        if (insertManicurista.affectedRows) {
-            const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
-            return res.status(200).json({ message: "Se ha creado correctamente la manicurista", token });
-        } else {
-            return res.status(500).json({ message: "No se ha podido crear la manicurista" });
-        }
+  
+      if (insertManicurista.affectedRows) {
+        const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
+        return res.status(200).json({ message: "Se ha creado correctamente la manicurista", token });
+      } else {
+        return res.status(500).json({ message: "No se ha podido crear la manicurista" });
+      }
+    } catch (error) {
+      console.error('Error en el controlador:', error);
+      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+  };
+  
+  exports.getManicurista = async (req, res) => {
+    try {
+        const [manicuristas] = await pool.promise().query(`SELECT * FROM manicurista`);
+        // Agregar la ruta completa de la imagen a cada manicurista
+        const manicuristasConRutaDeImagen = manicuristas.map(manicurista => {
+            if (manicurista.fotoManicurista) {
+                return {
+                    ...manicurista,
+                    fotoManicurista: manicurista.fotoManicurista.replace(/\\/g, '/') 
+                };
+            } else {
+                return manicurista;
+            }
+        });
+        return res.status(200).json(manicuristasConRutaDeImagen);
     } catch (error) {
         console.error('Error en el controlador:', error);
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 };
 
-exports.getManicurista = async (req, res) => {
-    try {
-        const [list] = await pool.promise().query(`SELECT * FROM manicurista`);
-        return res.status(200).json(list);
-    } catch (error) {
-        console.error('Error en el controlador:', error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
-    }
-};
+
 
 exports.updateManicurista = async (req, res) => {
     try {
