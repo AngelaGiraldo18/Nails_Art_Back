@@ -8,7 +8,6 @@ const pool = mysql.createPool({
     password: process.env.PASSWORD,
     database: process.env.DATABASE
 });
-
 pool.getConnection((error, connection) => {
     if (error) {
         console.error(`error al conectar la base de datos "${process.env.DATABASE}"`, error);
