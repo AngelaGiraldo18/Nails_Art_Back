@@ -1,34 +1,21 @@
 const mysql = require('mysql2');
+require('dotenv').config();
 
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'nailsArt'
+    connectionLimit: 10,
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE
 });
 
-const connectDB = () => {
-    return new Promise((resolve, reject) => {
-        pool.getConnection((err, connection) => {
-            if (err) {
-                console.error("Error al conectar a la base de datos:", err.message);
-                reject(err);
-                return;
-            }
+pool.getConnection((error, connection) => {
+    if (error) {
+        console.error(`error al conectar la base de datos "${process.env.DATABASE}"`, error);
+        return;
+    }
+    console.log(`Conexion exitosa con la base de datos "${process.env.DATABASE}"`);
+    connection.release(); 
+});
 
-            connection.ping((err) => {
-                connection.release();
-                if (err) {
-                    console.error("Error al realizar el ping a la base de datos:", err.message);
-                    reject(err);
-                    return;
-                }
-
-                console.log("Conexión exitosa a la base de datos.");
-                resolve();
-            });
-        });
-    });
-};
-
-module.exports = { pool, connectDB };
+module.exports = { pool};
