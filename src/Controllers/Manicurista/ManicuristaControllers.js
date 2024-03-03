@@ -76,12 +76,12 @@ const [insertManicurista] = await pool.promise().query(
   exports.getManicurista = async (req, res) => {
     try {
         const [manicuristas] = await pool.promise().query(`SELECT * FROM manicurista`);
-        
+        // Agregar la ruta completa de la imagen a cada manicurista
         const manicuristasConRutaDeImagen = manicuristas.map(manicurista => {
             if (manicurista.fotoManicurista) {
                 return {
                     ...manicurista,
-                    fotoManicurista: `http://deploy-backend-nailsart.onrender.com/${manicurista.fotoManicurista.replace(/\\/g, '/')}`
+                    fotoManicurista: manicurista.fotoManicurista.replace(/\\/g, '/') 
                 };
             } else {
                 return manicurista;
