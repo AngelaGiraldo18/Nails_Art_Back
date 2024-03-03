@@ -3,9 +3,13 @@ const { pool } = require("../../Config/db");
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
+
 // Cargar variables de entorno desde el archivo .env
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
+
+
+
 
 // Uso de Variables de Entorno
 if (!secretKey) {
@@ -150,33 +154,130 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
             subject: 'Datos de empleados candidatos',
             text: `Datos de empleados candidatos:\n\n${JSON.stringify(data, null, 2)}`,
             html: `
-                <html>
-                    <head>
-                        <style>
-                            body {
-                                font-family: 'Arial', sans-serif;
-                                margin: 20px;
-                            }
-                            h1 {
-                                color: #3498db;
-                            }
-                            p {
-                                margin-bottom: 10px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <h1>Datos de empleados candidatos</h1>
-                        <p>Nombre: ${data[0].nombre}</p>
-                        <p>Apellido: ${data[0].apellido}</p>
-                        <p>Email: ${data[0].email}</p>
-                        <p>Teléfono: ${data[0].telefono}</p>
-                        <p>Adjunto encontrarás la hoja de vida del candidato.</p>
-                        <p>Ruta del PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
-                        <p>Gracias,</p>
-                        <p>Tu Nombre</p>
-                    </body>
-                </html>
+            <html >
+            <head>
+              
+            
+            <style>
+                body {
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                margin: 20px;
+                  background-color: #ecebeb;
+            }
+            
+            .title {
+                background-color: rgb(121, 55, 183);
+                color: #f0f3f5;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                position: relative; 
+                font-family: 'Roboto', sans-serif;
+            }
+            
+            .title::before,
+            .title::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                margin: auto;
+                height: 5px;
+                background: linear-gradient(to right, transparent, #f0f3f5, transparent);
+                top: 30%; 
+            }
+            
+            .title::before {
+                transform: translateY(-50%) rotate(0deg);
+            }
+            
+            .title::after {
+                transform: translateY(-60%) rotate(0deg); 
+            }
+            .content {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                margin-top: 30px;
+                padding: 40px;
+                border-radius: 10px;
+                color: #f0f3f5;
+                overflow: hidden;
+            }
+            .work-image {
+              width: 300px;
+                height: auto;
+                margin: 0 auto;
+                display: block; 
+                position: absolute;
+                margin-top: 100px;
+                margin-left: 50%;
+                border: 2px solid #fff; /
+            }
+            
+            .background-image {
+                background: url(../../../uploads/img.jpg) center / cover;
+                filter: blur(2px); 
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: -1;
+            }
+            
+            h1 {
+                margin-bottom: 20px;
+               
+            }
+            
+            p {
+                margin-bottom: 10px;
+                font-size: 26px;
+            }
+            
+            a {
+                color: #f0f3f5;
+            }
+            
+            .footer {
+                text-align: center;
+                margin-top: 20px;
+                color: #999;
+                font-size: 14px;
+            }
+            
+            </style>
+            </head>
+            <body>
+            
+                <header class="title">
+                    <h1>Solicitud de trabajo</h1>
+                </header>
+            
+                <div class="content">
+                    <div class="background-image"></div>
+                    <div class="image-container">
+                        <img src="../../../uploads/imagen-correo" alt="Imagen de Trabajo" class="work-image">
+                    </div>
+                    <h1>Datos de empleado candidato</h1>
+                    <p>Nombre: ${data[0].nombre}</p>
+                    <p>Apellido: ${data[0].apellido}</p>
+                    <p>Email: ${data[0].email}</p>
+                    <p>Teléfono: ${data[0].telefono}</p>
+                    <p>Adjunto encontrarás la hoja de vida del candidato.</p>
+                    <p>Ruta del PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
+                    
+                
+                </div>
+            
+                <footer class="footer">
+                    <p>&copy; 2023 Todos los derechos reservados Nails Art</p>
+                </footer>
+            
+            </body>
+            </html>
+            
             `,
             attachments: [
                 {
