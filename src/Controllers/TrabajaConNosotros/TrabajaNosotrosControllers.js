@@ -154,7 +154,6 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
             subject: 'Datos de empleados candidatos',
             text: `Datos de empleados candidatos:\n\n${JSON.stringify(data, null, 2)}`,
             html: `
-           html: `
                 <html>
                     <head>
                         <style>
@@ -177,12 +176,11 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
                         <p>Email: ${data[0].email}</p>
                         <p>Teléfono: ${data[0].telefono}</p>
                         <p>Adjunto encontrarás la hoja de vida del candidato.</p>
-                        <p> PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
+                        <p>Ruta del PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
                         <p>Gracias,</p>
                         <p>Tu Nombre</p>
                     </body>
                 </html>
-
             `,
             attachments: [
                 {
