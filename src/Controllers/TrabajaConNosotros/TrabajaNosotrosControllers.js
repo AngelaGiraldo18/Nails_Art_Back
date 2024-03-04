@@ -154,46 +154,34 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
             subject: 'Datos de empleados candidatos',
             text: `Datos de empleados candidatos:\n\n${JSON.stringify(data, null, 2)}`,
             html: `
-            <html>
-<head>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 20px;
-            background-color: #fff; /* Fondo blanco */
-        }
-        h1 {
-            color: #631878; /* Título en color azul */
-        }
-        p {
-            color: #333; /* Texto oscuro */
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9; /* Fondo gris claro */
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #777; /* Texto gris */
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Hola ${nombre} ${apellido}</h1>
-        <p>Bienvenido a Nails Art. Esperamos que disfrutes de nuestra plataforma.</p>
-        <p>Atentamente,<br>El equipo de Nails Art</p>
-    </div>
-    <div class="footer">
-        Este es un mensaje automático, por favor no responder.
-    </div>
-</body>
-</html>
+           html: `
+                <html>
+                    <head>
+                        <style>
+                            body {
+                                font-family: 'Arial', sans-serif;
+                                margin: 20px;
+                            }
+                            h1 {
+                                color: #3498db;
+                            }
+                            p {
+                                margin-bottom: 10px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Datos de empleados candidatos</h1>
+                        <p>Nombre: ${data[0].nombre}</p>
+                        <p>Apellido: ${data[0].apellido}</p>
+                        <p>Email: ${data[0].email}</p>
+                        <p>Teléfono: ${data[0].telefono}</p>
+                        <p>Adjunto encontrarás la hoja de vida del candidato.</p>
+                        <p> PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
+                        <p>Gracias,</p>
+                        <p>Tu Nombre</p>
+                    </body>
+                </html>
 
             `,
             attachments: [
