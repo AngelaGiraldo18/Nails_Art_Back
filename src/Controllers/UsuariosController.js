@@ -59,14 +59,30 @@ const bcrypt = require('bcrypt');
                     <html>
                         <head>
                             <style>
-                            body {
-                                font-family: 'Arial', sans-serif;
-                                margin: 20px;
-                                background-color: white; /* Fondo blanco */
-                            }
-                            h1 {
-                                color: #631878; /* Título en color azul */
-                            }
+                             body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #fff; /* Fondo blanco */
+        }
+        h1 {
+            color: #631878; /* Título en color azul */
+        }
+        p {
+            color: #333; /* Texto oscuro */
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9; /* Fondo gris claro */
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777; /* Texto gris */
+        }
                             </style>
                         </head>
                         <body>
