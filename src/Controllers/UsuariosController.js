@@ -95,7 +95,7 @@ const bcrypt = require('bcrypt');
         Este es un mensaje automático, por favor no responder.
     </div>
 </body>
-</html>
+</html>`
 
                 };
                 await transporter.sendMail(emailOptions);
