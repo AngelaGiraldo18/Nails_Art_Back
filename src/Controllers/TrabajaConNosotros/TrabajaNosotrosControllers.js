@@ -3,13 +3,9 @@ const { pool } = require("../../Config/db");
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
-
 // Cargar variables de entorno desde el archivo .env
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
-
-
-
 
 // Uso de Variables de Entorno
 if (!secretKey) {
