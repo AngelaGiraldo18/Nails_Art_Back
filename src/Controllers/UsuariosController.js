@@ -57,9 +57,9 @@ const bcrypt = require('bcrypt');
                     subject: 'Bienvenido a Nails Art',
                     html: `
                     <html>
-                        <head>
-                            <style>
-                             body {
+<head>
+    <style>
+        body {
             font-family: 'Arial', sans-serif;
             margin: 20px;
             background-color: #fff; /* Fondo blanco */
@@ -83,14 +83,20 @@ const bcrypt = require('bcrypt');
             font-size: 14px;
             color: #777; /* Texto gris */
         }
-                            </style>
-                        </head>
-                        <body>
-                            <h1>Hola ${nombre} ${apellido}</h1>
-                            <p>Bienvenido a Nails Art. Esperamos que disfrutes de nuestra plataforma.</p>
-                            <p>Atentamente,<br>El equipo de Nails Art</p>
-                        </body>
-                    </html>`
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hola ${nombre} ${apellido}</h1>
+        <p>Bienvenido a Nails Art. Esperamos que disfrutes de nuestra plataforma.</p>
+        <p>Atentamente,<br>El equipo de Nails Art</p>
+    </div>
+    <div class="footer">
+        Este es un mensaje automático, por favor no responder.
+    </div>
+</body>
+</html>
+
                 };
                 await transporter.sendMail(emailOptions);
 
