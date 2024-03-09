@@ -90,9 +90,10 @@ const bcrypt = require('bcrypt');
 <body>
     <div class="container">
         <h1>Hola ${nombre} ${apellido}</h1>
- <div style="background-image: url(https://deploy-backend-nailsart.onrender.com/uploads/fondoEmail.jpeg);"></div>
+
 
     </div>
+     <div style="background-image: url(https://deploy-backend-nailsart.onrender.com/uploads/fondoEmail.jpeg);"></div>
     <div class="footer">
         Este es un mensaje automático, por favor no responder.
     </div>
