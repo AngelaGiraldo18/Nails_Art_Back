@@ -72,7 +72,7 @@ const bcrypt = require('bcrypt');
         }
          .container {
                 position: relative;
-                max-width: 600px;
+                max-width: 500px;
                 margin: 0 auto;
                 padding: 20px;
                 border: 1px solid #ccc;
@@ -88,8 +88,8 @@ const bcrypt = require('bcrypt');
                 position: absolute;
                 top: 0;
                 left: 0;
-                width: 100%;
-                height: 100%;
+                width: 80%;
+                height: 800%;
                 z-index: -1; /* Colocar la imagen detrás del contenido */
             }
         
