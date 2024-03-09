@@ -70,19 +70,28 @@ const bcrypt = require('bcrypt');
         p {
             color: #333; /* Texto oscuro */
         }
-        .container {
-            max-width: 300px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9; /* Fondo gris claro */
-        }
+         .container {
+                position: relative;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                background-color: #f9f9f9; /* Fondo gris claro */
+            }
         .footer {
             margin-top: 20px;
             font-size: 14px;
             color: #777; /* Texto gris */
         }
+          .background-image {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1; /* Colocar la imagen detrás del contenido */
+            }
         
        
     </style>
@@ -90,10 +99,10 @@ const bcrypt = require('bcrypt');
 <body>
     <div class="container">
         <h1>Hola ${nombre} ${apellido}</h1>
-
+ <img src="https://deploy-backend-nailsart.onrender.com/uploads/fondoEmail.jpeg" alt="Fondo de Nails Art" class="background-image">
 
     </div>
-     <div style="background-image: url(https://deploy-backend-nailsart.onrender.com/uploads/fondoEmail.jpeg);"></div>
+         
     <div class="footer">
         Este es un mensaje automático, por favor no responder.
     </div>
