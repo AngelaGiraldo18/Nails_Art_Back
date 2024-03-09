@@ -83,16 +83,15 @@ const bcrypt = require('bcrypt');
             font-size: 14px;
             color: #777; /* Texto gris */
         }
-        .img{
-            background-image: url(https://deploy-backend-nailsart.onrender.com/uploads/fondoEmail.jpeg);
-        }
+        
+       
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Hola ${nombre} ${apellido}</h1>
-       <div class="img">
-</div>
+ <div style="background-image: url(https://deploy-backend-nailsart.onrender.com/uploads/fondoEmail.jpeg);"></div>
+
     </div>
     <div class="footer">
         Este es un mensaje automático, por favor no responder.
