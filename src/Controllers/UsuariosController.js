@@ -71,7 +71,7 @@ const bcrypt = require('bcrypt');
             color: #333; /* Texto oscuro */
         }
         .container {
-            max-width: 600px;
+            max-width: 300px;
             margin: 0 auto;
             padding: 20px;
             border: 1px solid #ccc;
