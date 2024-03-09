@@ -83,13 +83,16 @@ const bcrypt = require('bcrypt');
             font-size: 14px;
             color: #777; /* Texto gris */
         }
+        .img{
+            background-image: url(https://deploy-backend-nailsart.onrender.com/uploads/fondoEmail.jpeg);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Hola ${nombre} ${apellido}</h1>
-        <p>Bienvenido a Nails Art. Esperamos que disfrutes de nuestra plataforma.</p>
-        <p>Atentamente,<br>El equipo de Nails Art</p>
+       <div class="img">
+</div>
     </div>
     <div class="footer">
         Este es un mensaje automático, por favor no responder.
