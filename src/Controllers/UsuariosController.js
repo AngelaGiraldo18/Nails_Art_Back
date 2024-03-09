@@ -88,8 +88,8 @@ const bcrypt = require('bcrypt');
                 position: absolute;
                 top: 0;
                 left: 0;
-                width: 80%;
-                height: 800%;
+                width: 100%;
+                height: 80%;
                 z-index: -1; /* Colocar la imagen detrás del contenido */
             }
         
