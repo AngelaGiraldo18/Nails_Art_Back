@@ -152,63 +152,115 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
             html: `
                <html>
     <head>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-                background-color: #f4f4f4;
-            }
+       <style>
+    body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin: 20px;
+      background-color: #ecebeb;
+}
 
-            .container {
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #ffffff;
-            }
+.title {
+    background-color: rgb(121, 55, 183);
+    color: #f0f3f5;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative; 
+    font-family: 'Roboto', sans-serif;
+}
 
-            .header {
-                background-color: #5737b7;
-                color: #ffffff;
-                text-align: center;
-                padding: 20px;
-            }
 
-            .content {
-                padding: 20px;
-            }
 
-            .content p {
-                margin-bottom: 10px;
-            }
 
-            .footer {
-                text-align: center;
-                margin-top: 20px;
-                color: #999999;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Solicitud de trabajo</h1>
-            </div>
-            <div class="content">
-                <img src="https://deploy-backend-nailsart.onrender.com/uploads/Trabajo-manicurista.jpg" alt="Imagen de Trabajo" style="width: 100%; max-width: 400px; display: block; margin: 0 auto;">
-                <h2>Datos de empleado candidato</h2>
-                <p>Nombre: [Nombre del candidato]</p>
-                <p>Apellido: [Apellido del candidato]</p>
-                <p>Email: [Email del candidato]</p>
-                <p>Teléfono: [Teléfono del candidato]</p>
-                <p>Adjunto encontrarás la hoja de vida del candidato.</p>
-                <p>PDF: <a href="[URL del PDF]" target="_blank">Ver hoja de vida</a></p>
-            </div>
-            <div class="footer">
-                <p>&copy; 2023 Todos los derechos reservados Nails Art</p>
-            </div>
+.content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+    padding: 40px;
+    border-radius: 10px;
+    color: #f0f3f5;
+    overflow: hidden;
+}
+.work-image {
+  width: 300px;
+    height: auto;
+    margin: 0 auto; /* Esto centrará la imagen horizontalmente */
+    display: block; 
+    position: absolute;
+    margin-top: 100px;
+    margin-left: 50%;
+    border: 2px solid #fff; /
+}
+
+.background-image {
+ 
+    filter: blur(2px); 
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: black;
+}
+
+p {
+    margin-bottom: 10px;
+    font-size: 26px;
+    color: black;
+}
+
+
+a {
+    color: #88a7bd;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #999;
+    font-size: 14px;
+}
+
+</style>
+</head>
+<body>
+
+    <header class="title">
+        <h1>Solicitud de trabajo</h1>
+    </header>
+
+    <div class="content">
+        <div class="background-image"></div>
+        <div class="image-container">
+            <img src="/correpo/imh/equipo-esteticista-interior-salon-tres-mujeres-sienta-lugar-trabajo-manicura_201836-1402.jpg" alt="Imagen de Trabajo" class="work-image">
         </div>
-    </body>
+        <h1>Datos de empleado candidato</h1>
+        <p>Nombre: ${data[0].nombre}</p>
+        <p>Apellido: ${data[0].apellido}</p>
+        <p>Email: ${data[0].email}</p>
+        <p>Teléfono: ${data[0].telefono}</p>
+        <p>Adjunto encontrarás la hoja de vida del candidato.</p>
+        <p>Ruta del PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
+        
+    
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2023 Todos los derechos reservados Nails Art</p>
+    </footer>
+
+
+    
+
+</body>
+
+
 </html>
 
             `,
