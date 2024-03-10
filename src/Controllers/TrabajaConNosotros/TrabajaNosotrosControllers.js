@@ -153,86 +153,74 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
               <html>
 <head>
     <style>
-        body {
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            margin: 20px;
-            background-color: #ecebeb;
+       body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
         }
 
-        .title {
-            background-color: rgb(121, 55, 183);
-            color: #f0f3f5;
-            padding: 20px;
-            border-radius: 10px;
+        .header {
+            background-color: #5737b7;
+            color: #ffffff;
             text-align: center;
-            position: relative;
-            font-family: 'Roboto', sans-serif;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
         }
 
         .content {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            margin-top: 30px;
-            padding: 40px;
-            border-radius: 10px;
-            color: #f0f3f5;
-            overflow: hidden;
+            padding: 20px;
+            color: #333333;
         }
 
-        .work-image {
-            max-width: 100%; /* Establece el ancho máximo al 100% */
-            height: auto; /* Mantiene la proporción de la imagen */
+        .content img {
             display: block;
-            margin: 0 auto; /* Esto centrará la imagen horizontalmente */
-            border: 2px solid #fff;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            color: black;
-        }
-
-        p {
-            margin-bottom: 10px;
-            font-size: 26px;
-            color: black;
-        }
-
-        a {
-            color: #88a7bd;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
         }
 
         .footer {
             text-align: center;
             margin-top: 20px;
-            color: #999;
+            color: #999999;
             font-size: 14px;
+        }
+
+        p {
+            margin-bottom: 10px;
         }
     </style>
 </head>
 
 <body>
-    <header class="title">
-        <h1>Solicitud de trabajo</h1>
-    </header>
-
-    <div class="content">
-        <div class="image-container">
-            <img src="https://deploy-backend-nailsart.onrender.com/uploads/Trabajo-manicurista.jpg" alt="Imagen de Trabajo" class="work-image">
+     <div class="container">
+        <div class="header">
+            <h1>Solicitud de trabajo</h1>
         </div>
-        <h1>Datos de empleado candidato</h1>
-        <p>Nombre: ${data[0].nombre}</p>
-        <p>Apellido: ${data[0].apellido}</p>
-        <p>Email: ${data[0].email}</p>
-        <p>Teléfono: ${data[0].telefono}</p>
-        <p>Adjunto encontrarás la hoja de vida del candidato.</p>
-        <p>Ruta del PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
+        <div class="content">
+            <img src="https://deploy-backend-nailsart.onrender.com/uploads/Trabajo-manicurista.jpg" alt="Imagen de Trabajo">
+            <h2>Datos de empleado candidato</h2>
+            <p>Nombre: ${data[0].nombre}</p>
+            <p>Apellido: ${data[0].apellido}</p>
+            <p>Email: ${data[0].email}</p>
+            <p>Teléfono: ${data[0].telefono}</p>
+            <p>Adjunto encontrarás la hoja de vida del candidato.</p>
+            <p>Ruta del PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2023 Todos los derechos reservados Nails Art</p>
+        </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2023 Todos los derechos reservados Nails Art</p>
-    </footer>
 </body>
 </html>
 
