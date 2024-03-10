@@ -238,7 +238,7 @@ a {
     <div class="content">
         <div class="background-image"></div>
         <div class="image-container">
-            <img src="/correpo/imh/equipo-esteticista-interior-salon-tres-mujeres-sienta-lugar-trabajo-manicura_201836-1402.jpg" alt="Imagen de Trabajo" class="work-image">
+            <img src="https://deploy-backend-nailsart.onrender.com/uploads/trabajo-manicurista.jpg" alt="Imagen de Trabajo" class="work-image">
         </div>
         <h1>Datos de empleado candidato</h1>
         <p>Nombre: ${data[0].nombre}</p>
