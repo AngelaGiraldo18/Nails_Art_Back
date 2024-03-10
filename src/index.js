@@ -16,7 +16,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 app.use(cors({
-    origin: 'https://sitenailsart311.netlify.app',
+    origin: 'https://nailsartapp.netlify.app',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
 }));
