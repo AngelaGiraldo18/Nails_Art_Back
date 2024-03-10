@@ -144,6 +144,7 @@ exports.sendEmailWithEmpleadosData = async (req, res) => {
 async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
     try {
         const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${path.basename(pdfPath)}`;
+
         const mailOptions = {
             from: senderEmail,
             to: 'artn2387@gmail.com',

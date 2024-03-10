@@ -93,6 +93,7 @@ exports.obtenerCitasPorFecha = async (req, res) => {
   }
 };
 
+
 exports.obtenerCitasPorFechaYManicurista = async (req, res) => {
   try {
     const idManicurista = req.params.idManicurista;

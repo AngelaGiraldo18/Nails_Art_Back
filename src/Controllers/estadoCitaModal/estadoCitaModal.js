@@ -89,3 +89,27 @@ exports.obtenerCitasUsuario = async (req, res) => {
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 };
+
+exports.eliminarCita = async (req, res) => {
+    try {
+      console.log('Iniciando eliminación de cita...');
+  
+      const { id_cita } = req.params;
+      console.log('ID de la cita a eliminar:', id_cita); // Agregar esta línea para imprimir el ID de la cita recibido
+  
+      const deleteQuery = `
+          DELETE FROM citas
+          WHERE id_cita = ?
+      `;
+  
+      await pool.promise().query(deleteQuery, [id_cita]);
+  
+      console.log('Cita eliminada correctamente');
+  
+      return res.status(200).json({ message: "Cita eliminada correctamente" });
+    } catch (error) {
+      console.error('Error en el controlador de eliminación de cita:', error);
+      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+  };
+  
