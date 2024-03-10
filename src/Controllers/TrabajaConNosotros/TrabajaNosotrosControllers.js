@@ -155,7 +155,7 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
     <style>
        body {
             font-family: Arial, sans-serif;
-             background-color: #f0e8f9;
+             background-color: #9d87b8;
             margin: 0;
             padding: 20px;
         }
@@ -164,7 +164,7 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #ffffff;
+             background-color: #9d87b8;
             border-radius: 10px;
              box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
         }
