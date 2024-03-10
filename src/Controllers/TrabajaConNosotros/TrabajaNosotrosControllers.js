@@ -151,33 +151,81 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
             subject: 'Datos de empleados candidatos',
             text: `Datos de empleados candidatos:\n\n${JSON.stringify(data, null, 2)}`,
             html: `
-                <html>
-                    <head>
-                        <style>
-                            body {
-                                font-family: 'Arial', sans-serif;
-                                margin: 20px;
-                            }
-                            h1 {
-                                color: #3498db;
-                            }
-                            p {
-                                margin-bottom: 10px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <h1>Datos de empleados candidatos</h1>
-                        <p>Nombre: ${data[0].nombre}</p>
-                        <p>Apellido: ${data[0].apellido}</p>
-                        <p>Email: ${data[0].email}</p>
-                        <p>Teléfono: ${data[0].telefono}</p>
-                        <p>Adjunto encontrarás la hoja de vida del candidato.</p>
-                        <p>Ruta del PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
-                        <p>Gracias,</p>
-                        <p>Tu Nombre</p>
-                    </body>
-                </html>
+        <html>
+<head>
+    <style>
+       body {
+            font-family: Arial, sans-serif;
+             background-color: #9d87b8;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+             background-color: #9d87b8;
+            border-radius: 10px;
+             box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background-color: #5737b7;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .content {
+            padding: 20px;
+            color: #333333;
+            
+        }
+
+        .content img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #999999;
+            font-size: 14px;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+     <div class="container">
+        <div class="header">
+            <h1>Solicitud de trabajo</h1>
+        </div>
+        <div class="content">
+            <img src="https://deploy-backend-nailsart.onrender.com/uploads/Trabajo-manicurista.jpg" alt="Imagen de Trabajo">
+            <h2>Datos de empleado candidato</h2>
+            <p>Nombre: ${data[0].nombre}</p>
+            <p>Apellido: ${data[0].apellido}</p>
+            <p>Email: ${data[0].email}</p>
+            <p>Teléfono: ${data[0].telefono}</p>
+            <p>Adjunto encontrarás la hoja de vida del candidato.</p>
+            <p>Ruta del PDF: <a href="${fileUrl}" target="_blank">Ver hoja de vida</a></p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2023 Todos los derechos reservados Nails Art</p>
+        </div>
+    </div>
+</body>
+</html>
             `,
             attachments: [
                 {
