@@ -22,7 +22,7 @@ router.post("/loginUsuario", UsuriosControllers.loginUser);
 // Rutas para el CRUD de manicuristas
 router.post("/createManicurista", Manicurista.upload.single('imagen'), Manicurista.createManicurista);
 router.get('/manicuristas', Manicurista.getManicurista);
-router.put("/updateManicurista", Manicurista.updateManicurista);
+router.put("/updateManicurista", Manicurista.upload.single('imagen'),Manicurista.updateManicurista);
 router.delete("/eliminarManicurista/:idmanicurista", Manicurista.eliminarManicurista);
 router.post('/loginManicurista', Manicurista.loginManicurista);
 router.get('/buscar-por-nombre/:nombre', Manicurista.buscarPorNombre);
