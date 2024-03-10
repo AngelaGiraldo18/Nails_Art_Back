@@ -193,15 +193,10 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
     border: 2px solid #fff; /
 }
 
-.background-image {
- 
-    filter: blur(2px); 
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: -1;
+.image-container img{
+
+width:600px;
+height:400px;
 }
 
 h1 {
@@ -236,7 +231,7 @@ a {
     </header>
 
     <div class="content">
-        <div class="background-image"></div>
+        
         <div class="image-container">
             <img src="https://deploy-backend-nailsart.onrender.com/uploads/Trabajo-manicurista.jpg" alt="Imagen de Trabajo" class="work-image">
         </div>
