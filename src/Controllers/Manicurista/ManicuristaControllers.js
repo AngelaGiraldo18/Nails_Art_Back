@@ -97,50 +97,96 @@ const [insertManicurista] = await pool.promise().query(
 
 
 exports.updateManicurista = async (req, res) => {
-    try {
-        console.log('Iniciando la actualización del manicurista...');
+  try {
+    const { id_manicurista, nombre, apellido, emailPersonal, emailApp, contrasenaApp, celular, direccion, descripcion } = req.body;
 
-        const { id_manicurista, nombre, apellido, emailPersonal, emailApp, contrasenaApp, celular, direccion, descripcion } = req.body;
-
-        console.log('Datos del manicurista a actualizar:', req.body);
-
-        let hashedPassword;
-
-        if (contrasenaApp) {
-            hashedPassword = await bcrypt.hash(contrasenaApp, 10);
-        }
-
-        const updateQuery = `
-            UPDATE manicurista
-            SET nombre = ?, apellido = ?, emailPersonal = ?, emailApp = ?, ${contrasenaApp ? 'contraseñaApp = ?,' : ''} celular = ?, direccion = ?, descripcion = ?
-            WHERE id_manicurista = ?
-        `;
-
-        const updateValues = [nombre, apellido, emailPersonal, emailApp, celular, direccion, descripcion];
-
-        if (contrasenaApp) {
-            updateValues.push(hashedPassword);
-        }
-
-        updateValues.push(id_manicurista);
-
-        const [updateResult] = await pool.promise().query(updateQuery, updateValues);
-
-        console.log('Manicurista actualizado correctamente');
-
-        return res.status(200).json({ message: "Manicurista actualizado correctamente" });
-
-    } catch (error) {
-        console.error('Error en el controlador de actualización de manicurista:', error);
-
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ message: "El correo ya se encuentra registrado" });
-        }
-
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    // Verificar si se proporcionó un ID de manicurista válido
+    if (!id_manicurista) {
+      return res.status(400).json({ message: "Falta el ID de la manicurista" });
     }
-};
 
+    // Verificar si la manicurista existe en la base de datos
+    const [existingManicurista] = await pool.promise().query("SELECT * FROM manicurista WHERE id_manicurista = ?", [id_manicurista]);
+
+    if (existingManicurista.length === 0) {
+      return res.status(404).json({ message: "La manicurista no existe" });
+    }
+
+    let hashedPassword;
+
+    // Verificar si se proporcionó una nueva contraseña y hashearla
+    if (contrasenaApp) {
+      hashedPassword = await bcrypt.hash(contrasenaApp, 10);
+    }
+
+    // Construir la consulta de actualización basada en los campos proporcionados
+    let updateQuery = "UPDATE manicurista SET";
+    let updateValues = [];
+
+    // Agregar los campos a actualizar a la consulta y sus valores correspondientes
+    if (nombre) {
+      updateQuery += " nombre = ?,";
+      updateValues.push(nombre);
+    }
+    if (apellido) {
+      updateQuery += " apellido = ?,";
+      updateValues.push(apellido);
+    }
+    if (emailPersonal) {
+      updateQuery += " emailPersonal = ?,";
+      updateValues.push(emailPersonal);
+    }
+    if (emailApp) {
+      updateQuery += " emailApp = ?,";
+      updateValues.push(emailApp);
+    }
+    if (contrasenaApp) {
+      updateQuery += " contraseñaApp = ?,";
+      updateValues.push(hashedPassword);
+    }
+    if (celular) {
+      updateQuery += " celular = ?,";
+      updateValues.push(celular);
+    }
+    if (direccion) {
+      updateQuery += " direccion = ?,";
+      updateValues.push(direccion);
+    }
+    if (descripcion) {
+      updateQuery += " descripcion = ?,";
+      updateValues.push(descripcion);
+    }
+
+    // Verificar si se proporcionó una nueva foto y agregarla a la consulta
+    if (req.file) {
+
+      const photoFile = req.file;
+      const host = req.get('host');
+      const fileUrl = `${req.protocol}://${host}/${photoFile.path}`;
+      updateQuery += " fotoManicurista = ?,";
+      updateValues.push(fileUrl); // Suponiendo que req.file.path contiene la ruta de la nueva foto
+    }
+
+    // Eliminar la coma final de la consulta de actualización
+    updateQuery = updateQuery.slice(0, -1);
+
+    // Agregar la cláusula WHERE para actualizar solo la manicurista correspondiente
+    updateQuery += " WHERE id_manicurista = ?";
+    updateValues.push(id_manicurista);
+
+    // Ejecutar la consulta de actualización
+    await pool.promise().query(updateQuery, updateValues);
+
+    console.log('Manicurista actualizado correctamente');
+
+    return res.status(200).json({ message: "Manicurista actualizado correctamente" });
+
+  } catch (error) {
+    console.error('Error en el controlador de actualización de manicurista:', error);
+
+    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+  }
+};
 
 exports.eliminarManicurista = async (req, res) => {
     try {
