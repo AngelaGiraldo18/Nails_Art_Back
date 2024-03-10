@@ -146,7 +146,7 @@ async function sendEmailWithAttachment(data, senderEmail, pdfPath, req) {
         const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${path.basename(pdfPath)}`;
         const mailOptions = {
             from: senderEmail,
-            to: 'artn2387@gmail.com',
+            to: 'jesussena762@gmail.com',
             subject: 'Datos de empleados candidatos',
             text: `Datos de empleados candidatos:\n\n${JSON.stringify(data, null, 2)}`,
             html: `
