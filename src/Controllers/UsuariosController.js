@@ -1,6 +1,8 @@
     const bcrypt = require('bcrypt');
+    const nodemailer = require('nodemailer');
     const jwt = require('jsonwebtoken');
     const { pool } = require("../Config/db");
+     
     
     // Cargar variables de entorno desde el archivo .env
     require('dotenv').config();
@@ -11,6 +13,16 @@
         console.error('La clave secreta no está configurada correctamente en el archivo .env.');
         process.exit(1); // Termina la aplicación con un código de error
     }
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'artn2387@gmail.com',
+            pass: 'lngs nxea womv lfsf'
+        },
+        port: 587,  
+        secure: false,
+    });
 
     exports.createUser = async (req, res) => {
         try {
@@ -39,10 +51,39 @@
             if (insertUser.affectedRows) {
                 const usuarioId = insertUser.insertId; 
                 const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
+                const emailOptions = {
+                    from: 'artn2387@gmail.com',
+                    to: email,
+                    subject: 'Bienvenido a Nails Art',
+                    html: `
+                    <html>
+                        <head>
+                            <style>
+                            h1 {
+                                color: #631878; 
+                            }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>Hola ${nombre} ${apellido}</h1>
+                        </body>
+                    </html>`,
+                    attachments: [
+                        {
+                            filename: 'Bienvenida_Nails_Art.jpg',
+                            path: './uploads/Bienvenida_Nails_Art.jpg' 
+                        }
+                    ]
+                };
+
+                await transporter.sendMail(emailOptions);
+
                 return res.status(200).json({ message: "Se ha creado correctamente el usuario", token });
             } else {
                 return res.status(500).json({ message: "No se ha podido crear el usuario" });
             }
+            
+
         } catch (error) {
             console.error('Error en el controlador:', error);
             console.error(error);
