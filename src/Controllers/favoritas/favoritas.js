@@ -1,10 +1,8 @@
-// Controlador en el servidor (favoritas.js)
 const { pool } = require("../../Config/db");
 
 exports.getFavoritaManicurista = async (req, res) => {
   try {
     const userEmail = req.params.email;
-    // Consulta SQL para obtener la manicurista favorita
     const query = `
     SELECT m.nombre AS nombre_manicurista, m.fotoManicurista, m.descripcion
     FROM manicurista m

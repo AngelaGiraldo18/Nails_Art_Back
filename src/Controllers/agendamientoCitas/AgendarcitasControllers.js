@@ -120,3 +120,28 @@ exports.obtenerCitasPorFechaYManicurista = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener citas' }); // Proporciona un mensaje de error más descriptivo si es posible
   }
 };
+exports.obtenerCitasPorManicurista = async (req, res) => {
+  try {
+    const idManicurista = req.params.idManicurista;
+    const result = await pool.promise().query(`
+      SELECT
+        c.id_cita,
+        u.nombre as usuario_nombre,
+        m.nombre as manicurista_nombre,
+        c.ubicacion_servicio,
+        c.duracion_en_horas,
+        c.fecha_del_servicio,
+        c.estado
+      FROM citas c
+      JOIN usuarios u ON c.id_usuario = u.id
+      JOIN manicurista m ON c.id_manicurista = m.id_manicurista
+      WHERE c.id_manicurista = ?;
+    `, [idManicurista]);
+
+    // Resto del código para el formateo de las citas y la respuesta del servidor...
+
+  } catch (error) {
+    console.error('Error al obtener citas por manicurista:', error);
+    res.status(500).json({ error: 'Error al obtener citas por manicurista' });
+  }
+};

@@ -52,7 +52,6 @@ exports.obtenerDetallesTransaccion = (req, res) => {
             currency: "cop",
             tax_base: (parseFloat(servicio.precio) * 0.8).toFixed(2),
             tax: (parseFloat(servicio.precio) * 0.1).toFixed(2),
-            tax_ico: (parseFloat(servicio.precio) * 0.1).toFixed(2),
             external: "true",
             name_billing: usuario.nombre + ' ' + usuario.apellido, 
             address_billing: "Dirección del usuario",
@@ -61,6 +60,7 @@ exports.obtenerDetallesTransaccion = (req, res) => {
             number_doc_billing: "",
           };
           res.json(data);
+          /*res.redirect('https://nailsartapp.netlify.app/');*/
         } else {
           res.status(404).json({ error: 'Usuario no encontrado' });
         }

@@ -1,3 +1,6 @@
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const fs = require("fs");
+const { API_KEY_GEMINI } = require('../../Config/config');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { pool } = require("../../Config/db");
@@ -6,6 +9,8 @@ require('dotenv').config();
 const multer = require('multer');
 const secretKey = process.env.SECRET_KEY;
 
+const genAI = new GoogleGenerativeAI(API_KEY_GEMINI);
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'uploads/') // Directorio donde se guardarán las imágenes
@@ -13,65 +18,92 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
       cb(null, Date.now() + '-' + file.originalname) // Nombre de archivo único
     }
-  });
-  const upload = multer({ storage: storage });
-  
-  exports.upload = multer({ storage: storage });
-  exports.createManicurista = async (req, res) => {
-    try {
-      console.log('Datos de la manicurista:', req.body);
-      console.log('Archivo de imagen:', req.file); // Información sobre el archivo de imagen subido
-  
-      const { nombre, apellido, emailPersonal, emailApp, contrasenaApp, celular, direccion, descripcion } = req.body;
-  
-      // Verificar si se ha subido una imagen
-      if (!req.file) {
-        return res.status(400).json({ message: "Debe subir una imagen" });
-      }
-  
-      if (!nombre || !apellido || !emailPersonal || !emailApp || !contrasenaApp || !celular || !direccion) {
-        return res.status(400).json({ message: "Faltan campos obligatorios" });
-      }
-  
-      console.log('Petición recibida:', req.body);
-  
-      const [existingUser] = await pool.promise().query("SELECT * FROM manicurista WHERE emailApp = ?", [emailApp]);
-  
-      if (existingUser.length > 0) {
-        return res.status(400).json({ message: "El correo ya se encuentra registrado" });
-      }
-  
-      const hashedPassword = await bcrypt.hash(contrasenaApp, 10);
-  
-      const [insertUser] = await pool.promise().query(
-        "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, 'manicurista')",
-        [nombre, apellido, emailApp, hashedPassword]
-      );
-  
-      const usuarioId = insertUser.insertId;
-  const hojaVidaFile = req.file;
-const host = req.get('host');
-const fileUrl = `${req.protocol}://${host}/${hojaVidaFile.path}`;
-console.log('Solicitud recibida:', req.body, fileUrl, req.file);
+});
 
+const upload = multer({ storage: storage });
 
-const [insertManicurista] = await pool.promise().query(
-    "INSERT INTO manicurista (id_manicurista, nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion, fotoManicurista) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    [usuarioId, nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion, fileUrl]
-);
+exports.upload = multer({ storage: storage });
 
-  
-      if (insertManicurista.affectedRows) {
-        const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
-        return res.status(200).json({ message: "Se ha creado correctamente la manicurista", token });
-      } else {
-        return res.status(500).json({ message: "No se ha podido crear la manicurista" });
-      }
-    } catch (error) {
-      console.error('Error en el controlador:', error);
-      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+exports.createManicurista = async (req, res) => {
+  try {
+    console.log('Datos de la manicurista:', req.body);
+    console.log('Archivo de imagen:', req.file); // Información sobre el archivo de imagen subido
+
+    const { nombre, apellido, emailPersonal, emailApp, contrasenaApp, celular, direccion, descripcion } = req.body;
+
+    // Verificar si se ha subido una imagen
+    if (!req.file) {
+      return res.status(400).json({ message: "Debe subir una imagen" });
     }
-  };
+
+    if (!nombre || !apellido || !emailPersonal || !emailApp || !contrasenaApp || !celular || !direccion) {
+      return res.status(400).json({ message: "Faltan campos obligatorios" });
+    }
+
+    console.log('Petición recibida:', req.body);
+
+    const [existingUser] = await pool.promise().query("SELECT * FROM manicurista WHERE emailApp = ?", [emailApp]);
+
+    if (existingUser.length > 0) {
+      return res.status(400).json({ message: "El correo ya se encuentra registrado" });
+    }
+
+    const hashedPassword = await bcrypt.hash(contrasenaApp, 10);
+
+    const [insertUser] = await pool.promise().query(
+      "INSERT INTO usuarios (nombre, apellido, email, contraseña, rol) VALUES (?, ?, ?, ?, 'manicurista')",
+      [nombre, apellido, emailApp, hashedPassword]
+    );
+
+    const usuarioId = insertUser.insertId;
+    const hojaVidaFile = req.file;
+    const host = req.get('host');
+    const fileUrl = `${req.protocol}://${host}/${hojaVidaFile.path}`;
+    console.log('Solicitud recibida:', req.body, fileUrl, req.file);
+
+    // Lógica de detección de imágenes
+    const isPersonAndClothed = await detectPersonAndClothing(hojaVidaFile.path);
+
+    if (!isPersonAndClothed) {
+      // Si no se detecta una persona vestida, rechazar la solicitud
+      return res.status(400).json({ message: "La imagen debe contener una persona vestida" });
+    }
+
+    const [insertManicurista] = await pool.promise().query(
+      "INSERT INTO manicurista (id_manicurista, nombre, apellido, emailPersonal, emailApp, contraseñaApp, celular, direccion, descripcion, fotoManicurista) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [usuarioId, nombre, apellido, emailPersonal, emailApp, hashedPassword, celular, direccion, descripcion, fileUrl]
+    );
+
+    if (insertManicurista.affectedRows) {
+      const token = jwt.sign({ usuarioId }, secretKey, { expiresIn: '1h' });
+      return res.status(200).json({ message: "Se ha creado correctamente la manicurista", token });
+    } else {
+      return res.status(500).json({ message: "No se ha podido crear la manicurista" });
+    }
+  } catch (error) {
+    console.error('Error en el controlador:', error);
+    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+  }
+};
+
+// Función para detectar si hay una persona y está vestida en la imagen
+async function detectPersonAndClothing(imagePath) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const prompt = "¿Hay una persona vestida en esta imagen?";
+    const imageParts = [{ inlineData: { data: Buffer.from(fs.readFileSync(imagePath)).toString("base64"), mimeType: "image/jpeg" } }];
+    const result = await model.generateContent([prompt, ...imageParts]);
+    const response = await result.response;
+    const text = await response.text();
+    console.log("Respuesta del modelo de IA:", text);
+    // Analiza la respuesta para determinar si hay una persona vestida en la imagen
+    // Por ejemplo, si la respuesta contiene "Sí", devuelve true; de lo contrario, devuelve false
+    return text.toLowerCase().includes("sí");
+  } catch (error) {
+    console.error('Error en la detección de imágenes:', error);
+    return false;
+  }
+}
   
   exports.getManicurista = async (req, res) => {
     try {
@@ -97,50 +129,96 @@ const [insertManicurista] = await pool.promise().query(
 
 
 exports.updateManicurista = async (req, res) => {
-    try {
-        console.log('Iniciando la actualización del manicurista...');
+  try {
+    const { id_manicurista, nombre, apellido, emailPersonal, emailApp, contrasenaApp, celular, direccion, descripcion } = req.body;
 
-        const { id_manicurista, nombre, apellido, emailPersonal, emailApp, contrasenaApp, celular, direccion, descripcion } = req.body;
-
-        console.log('Datos del manicurista a actualizar:', req.body);
-
-        let hashedPassword;
-
-        if (contrasenaApp) {
-            hashedPassword = await bcrypt.hash(contrasenaApp, 10);
-        }
-
-        const updateQuery = `
-            UPDATE manicurista
-            SET nombre = ?, apellido = ?, emailPersonal = ?, emailApp = ?, ${contrasenaApp ? 'contraseñaApp = ?,' : ''} celular = ?, direccion = ?, descripcion = ?
-            WHERE id_manicurista = ?
-        `;
-
-        const updateValues = [nombre, apellido, emailPersonal, emailApp, celular, direccion, descripcion];
-
-        if (contrasenaApp) {
-            updateValues.push(hashedPassword);
-        }
-
-        updateValues.push(id_manicurista);
-
-        const [updateResult] = await pool.promise().query(updateQuery, updateValues);
-
-        console.log('Manicurista actualizado correctamente');
-
-        return res.status(200).json({ message: "Manicurista actualizado correctamente" });
-
-    } catch (error) {
-        console.error('Error en el controlador de actualización de manicurista:', error);
-
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ message: "El correo ya se encuentra registrado" });
-        }
-
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    // Verificar si se proporcionó un ID de manicurista válido
+    if (!id_manicurista) {
+      return res.status(400).json({ message: "Falta el ID de la manicurista" });
     }
-};
 
+    // Verificar si la manicurista existe en la base de datos
+    const [existingManicurista] = await pool.promise().query("SELECT * FROM manicurista WHERE id_manicurista = ?", [id_manicurista]);
+
+    if (existingManicurista.length === 0) {
+      return res.status(404).json({ message: "La manicurista no existe" });
+    }
+
+    let hashedPassword;
+
+    // Verificar si se proporcionó una nueva contraseña y hashearla
+    if (contrasenaApp) {
+      hashedPassword = await bcrypt.hash(contrasenaApp, 10);
+    }
+
+    // Construir la consulta de actualización basada en los campos proporcionados
+    let updateQuery = "UPDATE manicurista SET";
+    let updateValues = [];
+
+    // Agregar los campos a actualizar a la consulta y sus valores correspondientes
+    if (nombre) {
+      updateQuery += " nombre = ?,";
+      updateValues.push(nombre);
+    }
+    if (apellido) {
+      updateQuery += " apellido = ?,";
+      updateValues.push(apellido);
+    }
+    if (emailPersonal) {
+      updateQuery += " emailPersonal = ?,";
+      updateValues.push(emailPersonal);
+    }
+    if (emailApp) {
+      updateQuery += " emailApp = ?,";
+      updateValues.push(emailApp);
+    }
+    if (contrasenaApp) {
+      updateQuery += " contraseñaApp = ?,";
+      updateValues.push(hashedPassword);
+    }
+    if (celular) {
+      updateQuery += " celular = ?,";
+      updateValues.push(celular);
+    }
+    if (direccion) {
+      updateQuery += " direccion = ?,";
+      updateValues.push(direccion);
+    }
+    if (descripcion) {
+      updateQuery += " descripcion = ?,";
+      updateValues.push(descripcion);
+    }
+
+    // Verificar si se proporcionó una nueva foto y agregarla a la consulta
+    if (req.file) {
+
+      const photoFile = req.file;
+      const host = req.get('host');
+      const fileUrl = `${req.protocol}://${host}/${photoFile.path}`;
+      updateQuery += " fotoManicurista = ?,";
+      updateValues.push(fileUrl); // Suponiendo que req.file.path contiene la ruta de la nueva foto
+    }
+
+    // Eliminar la coma final de la consulta de actualización
+    updateQuery = updateQuery.slice(0, -1);
+
+    // Agregar la cláusula WHERE para actualizar solo la manicurista correspondiente
+    updateQuery += " WHERE id_manicurista = ?";
+    updateValues.push(id_manicurista);
+
+    // Ejecutar la consulta de actualización
+    await pool.promise().query(updateQuery, updateValues);
+
+    console.log('Manicurista actualizado correctamente');
+
+    return res.status(200).json({ message: "Manicurista actualizado correctamente" });
+
+  } catch (error) {
+    console.error('Error en el controlador de actualización de manicurista:', error);
+
+    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+  }
+};
 
 exports.eliminarManicurista = async (req, res) => {
     try {
@@ -231,4 +309,3 @@ exports.buscarPorNombre = async (req, res) => {
       return res.status(500).json({ message: 'Error interno del servidor', error: error.message });
     }
   };
-  

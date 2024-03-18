@@ -18,21 +18,34 @@ const EstadoDeCitaController = require('../Controllers/estadoCitaModal/estadoCit
 const ConfiguracionController = require('../Controllers/configuracion/configuracion.js')
 const HistorialController = require('../Controllers/historial/historial.js')
 const Notificaciones = require('../Controllers/notificaciones/notificaciones.js');
-const PasarelaControllers =  require('../Controllers/pasarela/pasarela.js')
+const PasarelaControllers =  require('../Controllers/pasarela/pasarela.js');
+const multer = require('multer'); // Asegúrate de importar multer
+
 router.get("/", (req, res) => {
     res.json({
         mensaje: "Bienvenido a la api de Nails art"
     });
 });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+      cb(null, 'uploads/img') // Directorio donde se guardarán las imágenes
+  },
+  filename: function (req, file, cb) {
+      cb(null, Date.now() + '-' + file.originalname) // Nombre de archivo único
+  }
+});
 
+const upload = multer({ storage: storage });
 // Rutas para el usuario
 router.post("/createusuario", UsuriosControllers.createUser);
 router.post("/loginUsuario", UsuriosControllers.loginUser);
+router.post('/usuarios/:id/imagen', upload.single('imagen'), UsuriosControllers.actualizarImagenUsuario);
 
-// Rutas para el CRUD de manicuristas
+
+// Rutas para el CRUD de manicuristas 
 router.post("/createManicurista", Manicurista.upload.single('imagen'), Manicurista.createManicurista);
 router.get('/manicuristas', Manicurista.getManicurista);
-router.put("/updateManicurista", Manicurista.updateManicurista);
+router.put("/updateManicurista", Manicurista.upload.single('imagen'),Manicurista.updateManicurista);
 router.delete("/eliminarManicurista/:idmanicurista", Manicurista.eliminarManicurista);
 router.post('/loginManicurista', Manicurista.loginManicurista);
 router.get('/buscar-por-nombre/:nombre', Manicurista.buscarPorNombre);
@@ -40,6 +53,7 @@ router.get('/buscar-por-nombre/:nombre', Manicurista.buscarPorNombre);
 // Rutas para agendar una cita
 router.post("/crearCita", AgendaCitas.createCita);
 router.get("/citas/:fecha/:id_usuario/:rol", AgendaCitas.obtenerCitasPorFecha);
+router.get('/manicuristas/:idManicurista/citas', AgendaCitas.obtenerCitasPorManicurista);
 
 // Rutas para el Trabajador Candidato
 router.post('/createEmpleadoCandidato', empleadosController.upload.single('hojaVidaFile'), empleadosController.createEmpleadoCandidato);
